@@ -5,16 +5,11 @@ require 'eksigent_spec'
 require 'metric_spec'
 require 'database_spec'
 
+describe 'info object behaves properly' do 
+# I've really no idea what that should be right now....
 
+end
 
-# 'Parses SLD files' do 
-# 'Parses method files' do 
-# 'grabs eksigent output files' do 
-# 'databases information gathered' do
-# 'generates metrics' do 
-# 'parses metrics and databases them' do
-# 'graphs metrics' do 
-# 'graphs eksigent output' do 
 describe 'archives to network location' do 
 
 	it 'copied files' do 
