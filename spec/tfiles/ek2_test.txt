@@ -1,0 +1,80 @@
+[SECURITY]
+MD5=7385e4e723e17b850a823d1a55e69cf2
+[FILE]
+Filename: C:\Program Files\Eksigent NanoLC\autosave\20100604\ek2_235645.txt
+Created : 00:41:48 Saturday,June 5,2010
+Modified: 00:41:48 Saturday,June 5,2010
+[USER]
+Operator Name: default
+Dataset Owner: default
+Dataset Origin: default
+[SAMPLE]
+Sample Name:   
+Sample ID:30%
+Sample Type: Unknown
+Sample Injection Volume (nL): 500
+Sample Amount 1: 0.5
+Sample Amount 2: 
+Sample Amount 3: 
+Sample Amount 4: 
+Sample Amount 5: 
+Sample Dilution Factor: 
+Sample Mulitiplication Factor: 
+Sample Comments: 
+Sample Injection Timestamp: 20100604235648-0000
+[AUTOSAMPLER]
+Autosampler Device: 
+Autosampler Procedure: C:\Xcalibur\methods\BSA_45min_100517
+Autosampler Tray:48 Well Plate
+Autosampler Position: 2A03
+[LC]
+LC Device: 
+LC Channel: 2
+Mobile Phase A: 5% | Acetonitrile | with 0.1% FA 
+Mobile Phase B: 100% | Acetonitrile | with 0.1% FA 
+Method Name: Xcalibur
+Method ID: default
+Method Runtime (min): 45
+Method Table A: (0, 294) | (1260, 195) | (1320, 60) | (1440, 60) | (1470, 24) | (1800, 24) | (1860, 294) | (2700, 294) |  (sec, nL/min)
+Method Table B: (0, 6) | (1260, 105) | (1320, 240) | (1440, 240) | (1470, 276) | (1800, 276) | (1860, 6) | (2700, 6) |  (sec, nL/min)
+Method Events :  (sec, event)
+Pre-Run Equilibrate (min):  0.1 | 100.0%
+Pressure Stablize Enabled:  False
+Pressure Stablize value (psi):  3000
+Injection Type: 1-Standard
+Injection Volume (nL): 500
+Post-Run Equilibrate (min):
+Column Set Temperature (°C): 
+Column Temperature (°C): 
+Column Manufacturer: Eksigent Technologies
+Column Type: ChromXP
+Column Serial Number: 
+Column Length (cm): 10
+Column Particle Size (µm): 3
+Column Diameter (mm): 150
+[DETECTOR]
+[SPOTTER]
+Spotter Device: 
+[ANALYSIS]
+Analysis Date: 
+Analysis Method: C:\Program Files\Eksigent NanoLC\settings\analysis\.amf
+Parameter: [Events]
+Parameter: Event=0|Detection Threshold|0|999|1
+Parameter: Event=1|Detection Threshold Asymmetry|0|999|20
+Parameter: Event=2|Minimum Peak Height|0|999|1
+Parameter: Event=3|Minimum Peak Width|0|999|1
+Parameter: [QuantParams]
+Parameter: Description=No Quantitation.
+Parameter: Name=default
+Parameter: Response=Area
+Parameter: Units=ng/L
+Parameter: PeakMatch=6
+Parameter: PeakMatch_RemoveUnNamed=False
+Parameter: StartTime=0
+Parameter: RelativeResponse=True
+Parameter: AddStandardDataMethod=StandardValues_AppendReplaceOldest
+Parameter: NumToAverage=4
+Parameter: MinRSquaredValue=0
+Parameter: WindowWidthDefinition=1
+Parameter: WindowWidthPercent=5
+[INSTRUMENT LOG
