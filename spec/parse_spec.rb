@@ -32,10 +32,15 @@ describe 'Parses method files' do
 	end
 
 end
-
-describe 'finds eksigent output files' do 
-	
-	it 'uses a raw to find an ek2_[/.*/].txt file' do 
-
+if ENV["OS"] && ENV["OS"][/Windows/] == 'Windows'
+	describe 'finds eksigent output files' do 
+		
+		it 'uses a raw to find an ek2_[/.*/].txt file' do 
+			testraw = TESTFILE + '/time_test.RAW'
+			test = Ms::Eksigent::Ultra2D.new(testraw)
+			test.eksfile.should.equal 'ek2_test.txt'
+# AH crap... I need a solution across all platforms... 
+# ...other than the temp one I just implemented...
+		end
 	end
 end

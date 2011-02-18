@@ -5,6 +5,8 @@ end
 require 'mount_mapper'
 require 'fileutils'
 require 'xcalibur'
+require 'eksigent'
+
 
 # System Specific Constants
 Nist_dir = "C:\\NISTMSQC\\scripts"

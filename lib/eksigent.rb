@@ -8,6 +8,7 @@ PressureTraceDataPoint = Struct.new(:time, :signal, :reference, :qa, :qb, :aux, 
 	end
 end
 
+
 module Ms
 	class Eksigent
 		class Ultra2D
@@ -22,7 +23,7 @@ module Ms
 				raise "Wrong file type" if File.extname(@rawfile) != ".RAW"
 				@rawtime = File.mtime(@rawfile); rawdir = File.dirname(@rawfile)
 				mountmap = MountedServer::MountMapper.new('.')
-				eks_folder = "#{rawtime.year}#{"%02d" % rawtime.mon}#{"%02d" % rawtime.day}"
+				eks_folder = "#{@rawtime.year}#{"%02d" % @rawtime.mon}#{"%02d" % @rawtime.day}"
 				eks_dir = "C:\\Program Files\\Eksigent NanoLC\\autosave\\#{eks_folder}\\"
 				times = Dir.entries(eks_dir).map do |each_file|
 					next if File.extname(each_file) != '.txt'
