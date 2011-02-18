@@ -35,9 +35,12 @@ module Ms
 			@rawtime = File.mtime(@rawfile)
 			@rawid = Orbi_mount.basename(@rawfile)
 		end
-		def fill_in 
+		def grab_files
 			@tunefile = Ms::Xcalibur::Method.new(@methodfile).tunefile
 			@hplc_object = Ms::Eksigent::Ultra2D.new(@rawfile)
+			@hplcfile = @hplc_object.eksfile
+		def fill_in 
+			grab_files if @tunefile.nil?
 			@inj_volume = @hplc_object.inj_vol
 			@hplcfile = @hplc_object.eksfile
 			@hplc_vial = @hplc_object.autosampler_vial

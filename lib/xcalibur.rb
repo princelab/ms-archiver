@@ -1,8 +1,9 @@
 
-# require 'msruninfo'
-		def unpack(string)
-			string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
-		end
+ require 'msruninfo'
+def unpack(string)
+	string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
+end
+Set = Struct.new(:sldfile, :methodfile, :rawfile, :vial)
 
 module Ms
 	class Xcalibur
@@ -26,10 +27,6 @@ module Ms
 				string.chomp
 			end
 		end # BinReader
-		def unpack(string)
-			string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
-		end
-		Set = Struct.new(:sldfile, :methodfile, :rawfile, :vial)
 		class Sld
 			attr_accessor :sets, :sldfile
 			def initialize(filename = nil)
@@ -51,6 +48,7 @@ module Ms
 					vial = block[3]
 					@sets << Set.new(@sldfile, methodfile, rawfile, vial)
 				end
+				self
 			end
 			OFFSETS = {
 				#:type => 11,

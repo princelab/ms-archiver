@@ -32,6 +32,7 @@ module Ms
 				end
 				@eksfile = File.expand_path("#{eks_dir}/#{times.compact!.sort!.first.last}")
 				raise "Match error: #{@eksfile}" if @eksfile[/^.*\/ek2_.*\.txt/] != @eksfile
+				self
 			end
 			def parse
 				hash_out = {}; data_block = []
