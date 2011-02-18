@@ -25,9 +25,6 @@ module Ms
 				@index = next_index
 				string.chomp
 			end
-			def unpack(string)
-				string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
-			end
 		end # BinReader
 		def unpack(string)
 			string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
@@ -41,7 +38,6 @@ module Ms
 				@sldfile = filename if filename
 			end
 			def parse
-				#data = Ms::Xcalibur::BinReader.new.unpack(IO.read(File.open(@sldfile, 'r')))
 				data = unpack(IO.read(File.open(@sldfile, 'r')))
 				starts = [];
 				data.each_index{|index| starts << index if data[index] == 63 && index > 37}
