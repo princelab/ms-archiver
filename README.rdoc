@@ -1,6 +1,6 @@
 = archiver
 
-Description goes here.
+This addition to the Ms namespace offers archiving features.  For me, this project is approached because I would like to automate a complete method for tracking what has occured for each experiment run on the LC/MS system.  So, this package provides for the needs I see.  So, first, it will get called from Thermo's Xcalibur suite as a post-processing program.  Here, it can accept the Sequence file and row number and parse everything else to find the Eksigent UPLC data, the RAW file, the method file, and the LTQTune file, and archive each of them to a networked drive.  It can talk via SSH to a different computer to finish the process of running NISTMSQ metrics, starting automated analysis of the data, and storing all the information into an SQLite database.  Also built into the package is the capacity to generate graphs from the UPLC data, and graphs of the metric values (beanplots, particularly) which allow for easy comparison between sets of runs.
 
 == Contributing to archiver
  
