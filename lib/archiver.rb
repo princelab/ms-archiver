@@ -1,8 +1,6 @@
 require 'msruninfo'
 require 'xcalibur'
 require 'eksigent'
-require 'metrics'
-
 require 'optparse'
 
 # this package handles options and configures the packaging and archiving of 
@@ -35,8 +33,11 @@ optparse = OptionParser.new do |opts|
 
 	options[:move_files] = false
 	opts.on( '-m', '--move_files', "Instead of just copying the files over to the archive, delete them, safely (checks that file has moved) (FALSE)") {options[:move_files] = true}
+
 	options[:xcalibur] = false
 	opts.on( '-x', '--xcalibur', 'Runs this as called from Xcalibur and on an analysis workstation(minimize work down here, move then finish), with appropriate defaults' ){ options[:xcalibur] = true }
+	options[:linux] = false
+	opts.on( '-l', '--linux', 'Finishes the analysis, being fed a yaml file which represents the data collected previously, together with the archive location for the files.  These can then be completed by running the remaining options (like graphing, building metrics, and parsing the metrics to the database) ' ) {options[:linux] = true }
 
 	opts.on('-h', '--help', 'Display this screen' ) do 
 		puts opts
@@ -58,4 +59,24 @@ if options[:xcalibur]
 	object.grab_files
 end
 
+if options[:linux]
+	file = ARGV.first
+	object = YAML::load_file(file)
 
+
+end
+
+#  Code for the Sally kicker
+=begin 
+
+CygBin = "C:\\cygwin\\bin"
+CygHome = "C:\\cygwin\\home\\LTQ2"
+
+output = %x[#{CygBin}\\cygpath.exe -aw "#{CygHome}\\.ssh\\config].chomp
+p output
+
+kick = %x[#{CygBin}ssh ryanmt@jp1 -C "touch "]
+
+p kick
+
+=end

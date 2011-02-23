@@ -1,13 +1,23 @@
 require 'spec_helper'
 
-require 'parse_spec'
-require 'eksigent_spec'
-require 'metric_spec'
-require 'database_spec'
+#require 'parse_spec'
+#require 'eksigent_spec'
+#require 'metric_spec'
+#require 'database_spec'
 
 describe 'info object behaves properly' do 
-# I've really no idea what that should be right now....
-
+	before do 
+		file = TESTFILE + '/SWG_serum_100511165501.sld'
+		@sld = Ms::Xcalibur::Sld.new(file).parse
+		@sld.sets[0].rawfile = TESTFILE + '/time_test.RAW'
+		@msrun = Ms::MsrunInfo.new(@sld.sets[0])
+		@msrun.grab_files
+		@yaml = @msrun.to_yaml
+		puts @yaml
+	end
+	it 'goes to and from yaml identically' do 
+		YAML.load(@yaml).should.equal @msrun
+	end
 end
 
 describe 'archives to network location' do 

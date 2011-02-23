@@ -8,8 +8,6 @@ describe 'database information gathered' do
 
 	it 'contains only a single set of data for each time run' do 
 
-
-
 	end
 
 

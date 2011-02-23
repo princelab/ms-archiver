@@ -6,6 +6,7 @@ require 'mount_mapper'
 require 'fileutils'
 require 'xcalibur'
 require 'eksigent'
+# require 'metrics'
 
 
 # System Specific Constants
@@ -28,17 +29,20 @@ Db_mount = MountedServer::MountMapper.new(Database)
 
 module Ms
 	class MsrunInfo < 
-		Struct.new(:sequencefile, :methodfile, :rawfile, :tunefile, :hplcfile, :graphfile, :metricsfile, :sequence_vial, :hplc_vial, :inj_volume, :archive_location, :rawid, :group, :user, :taxonomy) 
-		attr_accessor :data_struct, 
+		Struct.new(:sldfile, :methodfile, :rawfile, :tunefile, :hplcfile, :graphfile, :metricsfile, :sequence_vial, :hplc_vial, :inj_volume, :archive_location, :rawid, :group, :user, :taxonomy) 
+		attr_accessor :data_struct 
 		def initialize(struct = nil)
-			super()
-			@rawtime = File.mtime(@rawfile)
-			@rawid = Orbi_mount.basename(@rawfile)
+			if struct
+				struct.members.each do |sym|
+					self.send("#{sym}="	, struct[sym])
+				end
+			end
 		end
 		def grab_files
 			@tunefile = Ms::Xcalibur::Method.new(@methodfile).tunefile
 			@hplc_object = Ms::Eksigent::Ultra2D.new(@rawfile)
 			@hplcfile = @hplc_object.eksfile
+		end
 		def fill_in 
 			grab_files if @tunefile.nil?
 			@inj_volume = @hplc_object.inj_vol
@@ -50,3 +54,5 @@ module Ms
 		end
 	end # MsrunInfo
 end # Ms
+
+

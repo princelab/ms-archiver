@@ -11,14 +11,14 @@ describe 'Parses SLD files' do
 		@sld.parse
 		match = @sld.sets.first.methodfile
 		@sld.sets.first.methodfile.should.equal Test_meth[:v2_1]
-		@sld.sets.first.vial.should.equal '2A05'
+		@sld.sets.first.sequence_vial.should.equal '2A05'
 	end
 	it 'parses v2.07 files' do 
 		sld_file = Test_sld[:v2_0]
 		@sld = Ms::Xcalibur::Sld.new(sld_file)
 		@sld.parse
 		@sld.sets.first.methodfile.should.equal Test_meth[:v2_0]
-		@sld.sets.first.vial.should.equal '2B01'
+		@sld.sets.first.sequence_vial.should.equal '2B01'
 	end
 end
 
@@ -47,25 +47,31 @@ end
 
 describe 'Builds the MsrunInfo thing' do 
 	before do 
-		@sld = Ms::Xcalibur::Sld.new(file).parse
+		sld_file = Test_sld[:v2_0]
+		@sld = Ms::Xcalibur::Sld.new(sld_file).parse
+		@sld.sets[0].rawfile = TESTFILE + '/time_test.RAW'
+	#	@sld.sets.first.rawfile.should.equal 'time_test.raw'
 		@msrun = Ms::MsrunInfo.new(@sld.sets[0])
+		@msrun.rawfile.should.equal @sld.sets.first.rawfile
 		@msrun.grab_files
 	end
 	it 'gets tunefile' do 
 		@msrun.tunefile[/(\..*)$/,1].should.equal ".LTQTune"
 		end
 	it 'gets eksfile' do 
-		@msrun.hplcfile[/(\..*)$/,1].should.equal ".txt"
+		@msrun.hplcfile[/ek2.*(\..*)$/,1].should.equal ".txt"
 	end
 	it 'has same data as @sld' do 
-		@sld.sldfile.should.equal @msrun.sequencefile
+		@sld.sldfile.should.equal @msrun.sldfile
 		@sld.sets.first.methodfile.should.equal @msrun.methodfile
 		@sld.sets.first.rawfile.should.equal @msrun.rawfile
-		@sld.sets.first.vial.should.equal @msrun.sequence_vial
+		@sld.sets.first.sequence_vial.should.equal @msrun.sequence_vial
 	end
 end
 
 
 if ENV["OS"] && ENV["OS"][/Windows/] == 'Windows'
 	describe 'finds eksigent output files' do 
-
+	
+	end
+end
