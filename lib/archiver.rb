@@ -36,6 +36,7 @@ optparse = OptionParser.new do |opts|
 
 	options[:xcalibur] = false
 	opts.on( '-x', '--xcalibur', 'Runs this as called from Xcalibur and on an analysis workstation(minimize work down here, move then finish), with appropriate defaults' ){ options[:xcalibur] = true }
+
 	options[:linux] = false
 	opts.on( '-l', '--linux', 'Finishes the analysis, being fed a yaml file which represents the data collected previously, together with the archive location for the files.  These can then be completed by running the remaining options (like graphing, building metrics, and parsing the metrics to the database) ' ) {options[:linux] = true }
 
@@ -57,26 +58,13 @@ if options[:xcalibur]
 	sld = Ms::Xcalibur::Sld.new(file).parse
 	object = Ms::MsrunInfo.new(sld.sets[line_num])
 	object.grab_files
+	to_linux(object.to_yaml)
 end
 
 if options[:linux]
-	file = ARGV.first
-	object = YAML::load_file(file)
+	yaml_file = ARGV.first
+	object = YAML::load_file(yaml_file)
 
 
 end
 
-#  Code for the Sally kicker
-=begin 
-
-CygBin = "C:\\cygwin\\bin"
-CygHome = "C:\\cygwin\\home\\LTQ2"
-
-output = %x[#{CygBin}\\cygpath.exe -aw "#{CygHome}\\.ssh\\config].chomp
-p output
-
-kick = %x[#{CygBin}ssh ryanmt@jp1 -C "touch "]
-
-p kick
-
-=end

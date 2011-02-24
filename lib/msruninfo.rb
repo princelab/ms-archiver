@@ -7,6 +7,7 @@ require 'fileutils'
 require 'xcalibur'
 require 'eksigent'
 # require 'metrics'
+require 'spawn_client'
 
 
 # System Specific Constants
