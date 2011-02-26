@@ -5,7 +5,7 @@ require 'spec_helper'
 #require 'metric_spec'
 #require 'database_spec'
 
-describe 'info object behaves properly' do 
+describe 'MsrunInfo Object behaves' do 
 	before do 
 		file = TESTFILE + '/SWG_serum_100511165501.sld'
 		@sld = Ms::Xcalibur::Sld.new(file).parse
@@ -19,8 +19,7 @@ describe 'info object behaves properly' do
 	end
 end
 
-describe 'archives to network location' do 
-
+describe 'Archiver writes to network location' do 
 	it 'copied files' do 
 
 	end
@@ -29,7 +28,8 @@ describe 'archives to network location' do
 
 	end
 
-describe 'Passes object around via ssh successfully' do
+end
+describe 'Ssh Utility' do
 	before do 
 		file = TESTFILE + '/SWG_serum_100511165501.sld'
 		@sld = Ms::Xcalibur::Sld.new(file).parse
@@ -38,8 +38,8 @@ describe 'Passes object around via ssh successfully' do
 		@msrun.grab_files
 		@yaml = @msrun.to_yaml
 	end
-	it 'sends the correct signal'
-		true
+	it 'sends the correct signal' do 
+		to_linux(@msrun.to_yaml).should.equal "String"
 
 	end
 

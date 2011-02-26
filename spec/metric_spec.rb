@@ -14,8 +14,10 @@ describe 'generates metrics' do
 end
 
 describe 'parses metrics and databases them' do
-	
-	
+	before do 
+		
+		
+	end	
 	it 'parses metric test file' do
 
 	end
@@ -28,6 +30,11 @@ end
 
 
 describe 'graphs metrics' do 
+	before do 
+		@metric = Metric.new( TESTFILE + '/test3__1.txt')
+		@out_hash =	@metric.parse
+
+	end
 	it 'generates pdfs with the [filename]_category.pdf name' do 
 
 	end

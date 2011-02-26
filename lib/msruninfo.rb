@@ -6,8 +6,9 @@ require 'mount_mapper'
 require 'fileutils'
 require 'xcalibur'
 require 'eksigent'
-# require 'metrics'
+require 'metrics'
 require 'spawn_client'
+require 'yaml'
 
 
 # System Specific Constants
@@ -50,6 +51,7 @@ module Ms
 			@hplcfile = @hplc_object.eksfile
 			@hplc_vial = @hplc_object.autosampler_vial
 		end
+		def move_files
 		def graph_pressure
 			@graphfile = @hplc_object.graph
 		end
