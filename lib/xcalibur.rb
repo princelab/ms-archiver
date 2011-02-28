@@ -3,7 +3,7 @@
 def unpack(string)
 	string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
 end
-Set = Struct.new(:sldfile, :methodfile, :rawfile, :sequence_vial)
+Sld_Row = Struct.new(:sldfile, :methodfile, :rawfile, :sequence_vial)
 
 module Ms
 	class Xcalibur
@@ -28,13 +28,13 @@ module Ms
 			end
 		end # BinReader
 		class Sld
-			attr_accessor :sets, :sldfile
+			attr_accessor :sldrows, :sldfile
 			def initialize(filename = nil)
-				@sets = []
+				@sldrows = []
 				raise "Wrong file type" if File.extname(filename) != ".sld"
 				@sldfile = filename if filename
 			end
-			def parse
+			def parse		# Returns Sld
 				data = unpack(IO.read(File.open(@sldfile, 'r')))
 				starts = [];
 				data.each_index{|index| starts << index if data[index] == 63 && index > 37}
@@ -46,7 +46,7 @@ module Ms
 					methodfile = block[0] + '.meth'
 					rawfile = block[2] + block[1] + '.RAW'
 					vial = block[3]
-					@sets << Set.new(@sldfile, methodfile, rawfile, vial)
+					@sldrows << Sld_Row.new(@sldfile, methodfile, rawfile, vial)
 				end
 				self
 			end

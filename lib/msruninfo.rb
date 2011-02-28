@@ -1,16 +1,9 @@
 MsrunInfoStruct = Struct.new(:sequencefile, :methodfile, :rawfile, :tunefile, :hplcfile, :graphfile, :metricsfile, :sequence_vial, :hplc_vial, :inj_volume, :archive_location, :rawid, :group, :user, :taxonomy) do 
 	
 end
-
-require 'mount_mapper'
-require 'fileutils'
-require 'xcalibur'
-require 'eksigent'
-require 'metrics'
-require 'spawn_client'
 require 'yaml'
-
-
+require 'fileutils'
+require 'mount_mapper'
 # System Specific Constants
 Nist_dir = "C:\\NISTMSQC\\scripts"
 Nist_exe = "C:\\NISTMSQC\\scripts\\run_NISTMSQC_pipeline.pl"
@@ -28,6 +21,12 @@ Jtp_mount = MountedServer::MountMapper.new(Jtp_drive)
 Orbi_mount = MountedServer::MountMapper.new(Orbi_drive)
 Db_mount = MountedServer::MountMapper.new(Database)
 
+
+require 'xcalibur'
+require 'eksigent'
+require 'spawn_client'
+require 'metrics'
+require 'database'
 
 module Ms
 	class MsrunInfo < 
@@ -52,10 +51,13 @@ module Ms
 			@hplc_vial = @hplc_object.autosampler_vial
 		end
 		def move_files
+			
+		end
 		def graph_pressure
 			@graphfile = @hplc_object.graph
 		end
 	end # MsrunInfo
 end # Ms
+
 
 

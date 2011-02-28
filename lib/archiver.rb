@@ -56,7 +56,7 @@ if options[:xcalibur]
 	end
 	raise FileTypeError if File.extname(file) != File.extname('Test.sld')
 	sld = Ms::Xcalibur::Sld.new(file).parse
-	object = Ms::MsrunInfo.new(sld.sets[line_num])
+	object = Ms::MsrunInfo.new(sld.sldrows[line_num])
 	object.grab_files
 	to_linux(object.to_yaml)
 end

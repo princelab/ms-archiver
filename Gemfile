@@ -8,7 +8,9 @@ gem 'dm-types', ">=1.0.2"
 gem 'dm-migrations', ">=1.0.2"
 gem 'rserve-simpler', ">=0.0.2", :require => 'rserve/simpler'
 gem 'rserve-client', ">=0.2.5"
-gem 'net-ssh', ">=2.1.0"
+# gem 'net-ssh', ">=2.1.0"
+
+
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
