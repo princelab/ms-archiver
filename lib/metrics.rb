@@ -17,7 +17,7 @@ class Metric		# Metric parsing fxns
 	def snakecase(str)
 		str.gsub(/(\s|\W)/, '_').gsub(/(_+)/, '_').gsub(/(_$)/, "").gsub(/^(\d)/, '_\1').downcase
 	end
-	def initialize(file)
+	def initialize(file = nil)
 		@metricsfile = file
 	end
 	def archive
@@ -26,25 +26,31 @@ class Metric		# Metric parsing fxns
 	end
 	def parse				# Returns the out_hash
 		array = IO.readlines(@metricsfile, 'r:us-ascii').first.split("\r\n")
-		out_array = {}; key = ""
+		outs_hash = {}; key = ""
+		measures = []
 		array.each_index do |index|
+			@reading = true if array[index][/^(Begin).*eries.*/,1] == "Begin"
 			if @reading
-				if array[index-1] == ""
+				if array[index] == ""
+				elsif array[index-1] == "" 
+					puts "key: #{key} and array[index] = #{array[index]}"
 					key = snakecase(array[index])
+					puts "key: #{key}"
 					@num_files = key[/files_analyzed_(\d)/,1].to_i if key[/(files_analyzed_).*/,1] == "files_analyzed_"
-				elsif out_array[key]
-					out_array[key] << array[index].split("\t")
+				elsif outs_hash[key]
+					puts "elsif put key: #{key} and array[index] = #{array[index]}"
+					outs_hash[key] << array[index].split("\t")
 				else
-					out_array[key] = []
-					out_array[key] << array[index].split("\t")
+					puts "else put key: #{key} and array[index] = #{array[index]}"
+					outs_hash[key] = []
+					outs_hash[key] << array[index].split("\t")
 				end
 			end
-			@reading = true if array[index][/^(Begin).*eries.*/,1] == "Begin"
 		end
-		@metrics_input_files = out_array["files_analyzed_#{@num_files}"].map{|arr| arr.last}.compact
-# out_array.delete("files_analyzed_#{Num_files}")
+		@metrics_input_files = outs_hash["files_analyzed_#{@num_files}"].map{|arr| arr.last}.compact
+# outs_hash.delete("files_analyzed_#{Num_files}")
 		@out_hash = {}
-		out_array.each_pair do |key, values|
+		outs_hash.each_pair do |key, values|
 			@out_hash[key] = {}
 			values.each do |value|
 				if value[0]
@@ -62,7 +68,6 @@ class Metric		# Metric parsing fxns
 		categories = ["chromatography", "ms1", "dynamic_sampling", "ion_source", "ion_treatment", "peptide_ids", "ms2", "run_comparison"]
 		measures = []; 
 		p @out_hash.keys
-		abort
 	end
 	def to_database
 		require 'dm-migrations'
