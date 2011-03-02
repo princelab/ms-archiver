@@ -10,7 +10,7 @@ class ::Measurement <
 end
 
 class Metric		# Metric parsing fxns
-	attr_accessor :out_hash, :metricsfile, :rawfile, :measures, :raw_ids
+	attr_accessor :out_hash, :metricsfile, :rawfile, :raw_ids
 	def camelcase(str)
 		str.split('_').map{|word| word.capitalize}.join('')
 	end
@@ -80,7 +80,7 @@ class Metric		# Metric parsing fxns
 			#	@@categories.each {|category| 				NOT NECESSARY because I don't have to make the category class
 			@out_hash.each_pair do |subcategory, value_hash|
 				value_hash.each_pair do |property, value|
-					@measures << Measurement.new( property, file, @rawtime, value[item], @@ref_hash[subcategory.to_sym].to_sym, subcategory.to_sym)
+					@measures << Measurement.new( property, File.basename(file,".RAW.MGF.TSV"), @rawtime, value[item], @@ref_hash[subcategory.to_sym].to_sym, subcategory.to_sym)
 				end
 			end
 			item +=1
@@ -89,8 +89,8 @@ class Metric		# Metric parsing fxns
 	end
 	def to_database
 		require 'dm-migrations'
-#				DataMapper.auto_migrate!  # This one wipes things!
-		DataMapper.auto_upgrade!
+				DataMapper.auto_migrate!  # This one wipes things!
+#		DataMapper.auto_upgrade!
 		objects = []; item = 1
 		@metrics_input_files.each do |file|
 			tmp = Msrun.first_or_create({raw_id: "#{File.basename(file,".RAW.MGF.TSV")}",  metricsfile: @metricsfile}) # rawfile: "#{File.absolute_path(File.basename(file, ".RAW.MGF.TSV")) + ".RAW"}",
@@ -138,41 +138,58 @@ class Metric
 		@data = {}
 		matches.each do |msrun|
 			next if msrun.metric.nil?
-				index = msrun.raw_id.to_s
-				puts "0000000000000000000000000000000000000000000"
-				puts "file: (raw_id) : #{index}"
-				@data[index] = {'timestamp' => msrun.rawtime || Time.now}
+			index = msrun.raw_id.to_s
+			@data[index] = {'timestamp' => msrun.rawtime || Time.now}
 			@@categories.each do |cat|
 				@data[index][cat] = msrun.metric.send(cat.to_sym).hashes
 				@data[index][cat].keys.each do |subcat|	
 					@data[index][cat][subcat].delete('id'.to_sym)
 					@data[index][cat][subcat].delete("#{cat}_id".to_sym)
 					@data[index][cat][subcat].each { |property, value| 
-						measures << Measurement.new( property, index, msrun.rawtime, value, cat.to_sym, subcat.to_sym) }
+						measures << Measurement.new( property, index, @data[index]['timestamp'], value, cat.to_sym, subcat.to_sym) }
 				end
 			end
 		end
-		p measures.first.raw_id
-		p measures.size
-		output = measures.first
-		puts output.size
-		output
-	end	# returns array of measures
+		measures
+	end	# returns array of measurements
 	def graph_matches(matches)
-		meaures = slice_matches(matches) #|| @measures
-		puts measures.length
+		measures = slice_matches(matches) #|| @measures
 		require 'rserve/simpler'
-		p measures.first.raw_id
-		p measures.first
+		graphfiles = []
 		files = measures.map {|item| item.raw_id}.uniq
-		p files
-		@@categories.map {|cat| }
-		abort
-		
+		files.each do |file|
+			@@categories.map do |cat| 
+				subcats = measures.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
+				p subcats
+				subcat = subcats.first
+				graphfile = File.join([cat,'', file, '_', subcat]) + '.pdf'
+				p graphfile
+				abort
+				graphfiles << graphfile
+				r_object = Rserve::Simpler.new 
+				structs = measures.map{|meas| meas if meas.category == cat.to_sym}.compact
+
+				datafr = Rserve::DataFrame.from_structs(structs)
+				r_object.converse( df: datafr )	do 
+					%Q{pdf(file="#{graphfile}", height=9, width=16)
+						library("beanplot")
+						attach(df)
+						sub_cat_num <- length(unique(subcat))
+						rows <- sub_cat_num / 3.0
+						par(mfrow=c(rows,3))
+						beanplot(subcat)
+						
+
+					}
+				end
+				abort
+			end
+		end
 		
 		#should graph the results... probably only if there are significant differences, but should also allow for specification of the parameter to graph... right?
 		# maybe I can have it only do a category at a time, and generate multiple graphs, one for each quality in the subset... crap this is getting complicated!!!
-	end # graphmatches
+		graphfiles
+	end # graph_files
 
 
 

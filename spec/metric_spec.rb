@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-=begin
 describe 'generates metrics' do 
 
 	it 'runs the NIST package to generate metrics over SSH' do 
@@ -37,7 +36,6 @@ describe 'parses metrics and databases them' do
 
 end
 
-=end
 describe 'graphs metrics' do 
 	before do 
 		@metric = Metric.new( TESTFILE + '/test3__1.txt')
@@ -45,9 +43,12 @@ describe 'graphs metrics' do
 		@metric.to_database
 		@matches = Msrun.all 
 	end
-	it 'generates pdfs with the [filename]_category.pdf name' do 
+	it 'generates pdfs' do 
 		puts "\n"
 		@metric.graph_matches(@matches)
+	end
+	it 'concatenates them into a giant image' do
+
 	end
 end
 

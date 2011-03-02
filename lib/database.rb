@@ -64,7 +64,7 @@ end
 
 class Metric 
 	include DataMapper::Resource
-	property :id, Serial
+	#property :id, Serial
 	
 	#property :metric_input_file, 	FilePath#, :key => true
 	
@@ -77,7 +77,7 @@ class Metric
 	has 1, :peptide_ids
 	has 1, :ms2
 	has 1, :run_comparison
-	belongs_to :msrun
+	belongs_to :msrun, :key => true
 end
 
 class Chromatography
