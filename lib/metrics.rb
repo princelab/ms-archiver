@@ -89,8 +89,8 @@ class Metric		# Metric parsing fxns
 	end
 	def to_database
 		require 'dm-migrations'
-				DataMapper.auto_migrate!  # This one wipes things!
-#		DataMapper.auto_upgrade!
+#			DataMapper.auto_migrate!  # This one wipes things!
+			DataMapper.auto_upgrade!
 		objects = []; item = 1
 		@metrics_input_files.each do |file|
 			tmp = Msrun.first_or_create({raw_id: "#{File.basename(file,".RAW.MGF.TSV")}",  metricsfile: @metricsfile}) # rawfile: "#{File.absolute_path(File.basename(file, ".RAW.MGF.TSV")) + ".RAW"}",
@@ -162,7 +162,7 @@ class Metric
 				subcats = measures.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
 				p subcats
 				subcat = subcats.first
-				graphfile = File.join([cat,'', file, '_', subcat]) + '.pdf'
+				graphfile = File.join([cat, (file + '_' + subcat)]) + '.pdf'
 				p graphfile
 				abort
 				graphfiles << graphfile

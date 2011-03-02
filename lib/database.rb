@@ -13,7 +13,6 @@ DataMapper.setup(:default, "sqlite://#{Db_mount.full_path('metrics/test.db')}")
 puts "Db_mount.full_path.... (path to database): #{Db_mount.full_path('metrics/test.db')}"
 class Msrun
 	include DataMapper::Resource
-	#property :id, Serial
 
 	# Unique Identifier
 	property :raw_id, 			String, :key => true
@@ -64,7 +63,6 @@ end
 
 class Metric 
 	include DataMapper::Resource
-	#property :id, Serial
 	
 	#property :metric_input_file, 	FilePath#, :key => true
 	
@@ -82,7 +80,6 @@ end
 
 class Chromatography
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :first_and_last_ms1_rt_min
 	has 1, :middle_peptide_retention_time_period_min
@@ -93,7 +90,7 @@ class Chromatography
 	##### has 1, :fraction_of_repeat_peptide_ids_with_divergent_rt_rt_vs_rt_best_id_chromatographic_bleed
 	has 1, :rt_ms1max_rt_ms2_for_ids_sec
 
-	belongs_to :metric	
+	belongs_to :metric		, :key => true
 
 	def hashes
 		hash = {}
@@ -114,13 +111,12 @@ end
 
 class Ms1
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :ms1_during_middle_and_early_peptide_retention_period
 	has 1, :ms1_total_ion_current_for_different_rt_periods
 	has 1, :ms1_id_max
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:ms1_during_middle_and_early_peptide_retention_period] = self.ms1_during_middle_and_early_peptide_retention_period.attributes
@@ -136,7 +132,6 @@ end
 
 class DynamicSampling
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :nearby_resampling_of_ids_oversampling_details
 	has 1, :early_and_late_rt_oversampling_spectrum_ids_unique_peptide_ids_chromatographic_flow_through_bleed
@@ -145,7 +140,7 @@ class DynamicSampling
 	has 1, :single_spectrum_peptide_ion_identifications_oversampling_measure
 	has 1, :ms1max_ms1sampled_abundance_ratio_ids_inefficient_sampling
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:nearby_resampling_of_ids_oversampling_details] = self.nearby_resampling_of_ids_oversampling_details.attributes
@@ -166,7 +161,6 @@ end
 
 class IonSource
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :spectrum_counts
 	has 1, :ion_injection_times_for_ids_ms
@@ -178,7 +172,7 @@ class IonSource
 	has 1, :numbers_of_ion_ids_at_different_charges_with_1_mobile_proton
 	has 1, :percent_of_ids_at_different_charges_and_mobile_protons_relative_to_ids_with_1_mobile_proton
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:spectrum_counts] = self.spectrum_counts.attributes
@@ -202,11 +196,10 @@ end
 
 class IonTreatment
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :precursor_m_z_monoisotope_exact_m_z
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:precursor_m_z_monoisotope_exact_m_z] = self.precursor_m_z_monoisotope_exact_m_z.attributes
@@ -219,7 +212,6 @@ end
 
 class PeptideIds
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :tryptic_peptide_counts
 	has 1, :peptide_counts
@@ -227,7 +219,7 @@ class PeptideIds
 	has 1, :precursor_m_z_for_ids
 	has 1, :averages_vs_rt_for_ided_peptides
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:tryptic_peptide_counts] = self.tryptic_peptide_counts.attributes
@@ -245,14 +237,13 @@ end
 
 class Ms2
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :precursor_m_z_peptide_ion_m_z_2_charge_only_reject_0_45_m_z 
 	has 1, :ms2_id_spectra
 	has 1, :ms1_id_abund_at_ms2_acquisition
 	has 1, :ms2_id_abund_reported
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:precursor_m_z_peptide_ion_m_z_2_charge_only_reject_0_45_m_z] = self.precursor_m_z_peptide_ion_m_z_2_charge_only_reject_0_45_m_z.attributes
@@ -269,7 +260,6 @@ end
 
 class RunComparison
 	include DataMapper::Resource
-	property :id, Serial
 
 	has 1, :relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs
 	has 1, :relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs
@@ -278,7 +268,7 @@ class RunComparison
 	has 1, :uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs
 	has 1, :magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs
 
-	belongs_to :metric
+	belongs_to :metric	, :key => true
 	def hashes
 		hash = {}
 		hash[:relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs] = self.relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs.attributes
@@ -297,28 +287,25 @@ end
 
 class SpectrumCounts
 	include DataMapper::Resource
-	property :id, Serial
 	
 	property :ms2_scans, 				Integer
 	property :ms1_scans_full, 	Integer
 	property :ms1_scans_other, 	Integer
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class FirstAndLastMs1RtMin
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :first_ms1, 			Float
 	property :last_ms1, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class TrypticPeptideCounts
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :peptides, 			Float
 	property :ions, 			Float
@@ -328,12 +315,11 @@ class TrypticPeptideCounts
 	property :ions_peptide, 			Float
 	property :ids_peptide, 			Float
 
-	belongs_to :peptide_ids
+	belongs_to :peptide_ids	, :key => true
 end
 
 class PeptideCounts
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :peptides, 			Float
 	property :ions, 			Float
@@ -348,12 +334,11 @@ class PeptideCounts
 	property :ions_peptide, 			Float
 	property :ids_peptide, 			Float
 
-	belongs_to :peptide_ids
+	belongs_to :peptide_ids	, :key => true
 end
 
 class MiddlePeptideRetentionTimePeriodMin
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :half_period, 			Float
 	property :start_time, 			Float
@@ -365,12 +350,11 @@ class MiddlePeptideRetentionTimePeriodMin
 	property :id_rate, 			Float
 	property :id_efficiency, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class Ms1DuringMiddleAndEarlyPeptideRetentionPeriod
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :s_n_median, 			Float
 	property :tic_median_1000, 			Float
@@ -388,35 +372,32 @@ class Ms1DuringMiddleAndEarlyPeptideRetentionPeriod
 	property :ms1_jumps_10x, 			Float
 	property :ms1_falls_10x, 			Float
 
-	belongs_to :ms1
+	belongs_to :ms1	, :key => true
 end
 
 class Ms1TotalIonCurrentForDifferentRtPeriods
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :_1st_quart_id, 			Float
 	property :middle_id, 			Float
 	property :last_id_quart, 			Float
 	property :to_end_of_run, 			Float
 
-	belongs_to :ms1
+	belongs_to :ms1	, :key => true
 end
 
 class TotalIonCurrentForIdsAtPeakMaxima
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :med_tic_id_1000, 			Float
 	property :interq_tic, 			Float
 	property :mid_interq_tic, 			Float
 
-	belongs_to :peptide_ids
+	belongs_to :peptide_ids	, :key => true
 end
 
 class PrecursorMZForIds
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median, 			Float
 	property :half_width, 			Float
@@ -432,12 +413,11 @@ class PrecursorMZForIds
 	property :med_charge_3, 			Float
 	property :med_charge_4, 			Float
 
-	belongs_to :peptide_ids
+	belongs_to :peptide_ids	, :key => true
 end
 
 class NumberOfIonsVsCharge
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :charge_1, 			Float
 	property :charge_2, 			Float
@@ -445,24 +425,22 @@ class NumberOfIonsVsCharge
 	property :charge_4, 			Float
 	property :charge_5, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class AveragesVsRtForIdedPeptides
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :length_q1, 			Float
 	property :length_q4, 			Float
 	property :charge_q1, 			Float
 	property :charge_q4, 			Float
 
-	belongs_to :peptide_ids
+	belongs_to :peptide_ids	, :key => true
 end
 
 class PrecursorMZPeptideIonMZ2ChargeOnlyReject045MZ
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :spectra, 			Float
 	property :median, 			Float
@@ -470,12 +448,11 @@ class PrecursorMZPeptideIonMZ2ChargeOnlyReject045MZ
 	property :ppm_median, 			Float
 	property :ppm_interq, 			Float
 
-	belongs_to :ms2
+	belongs_to :ms2	, :key => true
 end
 
 class IonIdsByChargeStateRelativeTo2
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :_2_ion_count, 			Float
 	property :charge_1, 			Float
@@ -483,48 +460,44 @@ class IonIdsByChargeStateRelativeTo2
 	property :charge_3, 			Float
 	property :charge_4, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class AveragePeptideLengthsForDifferentChargeStates
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :charge_1, 			Float
 	property :charge_2, 			Float
 	property :charge_3, 			Float
 	property :charge_4, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class AveragePeptideLengthsForCharge2ForDifferentNumbersOfMobileProtons
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :naa_ch_2_mp_1, 			Float
 	property :naa_ch_2_mp_0, 			Float
 	property :naa_ch_2_mp_1, 			Float
 	property :naa_ch_2_mp_2, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class NumbersOfIonIdsAtDifferentChargesWith1MobileProton
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :ch_1_mp_1, 			Float
 	property :ch_2_mp_1, 			Float
 	property :ch_3_mp_1, 			Float
 	property :ch_4_mp_1, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class PercentOfIdsAtDifferentChargesAndMobileProtonsRelativeToIdsWith1MobileProton
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :ch_1_mp_1, 			Float
 	property :ch_1_mp_0, 			Float
@@ -536,12 +509,11 @@ class PercentOfIdsAtDifferentChargesAndMobileProtonsRelativeToIdsWith1MobileProt
 	property :ch_3_mp_0, 			Float
 	property :ch_3_mp_1, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class PrecursorMZMonoisotopeExactMZ
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :more_than_100, 			Float
 	property :betw_100_0_50_0, 			Float
@@ -560,12 +532,11 @@ class PrecursorMZMonoisotopeExactMZ
 	property :next_half_7, 			Float
 	property :next_half_8, 			Float
 
-	belongs_to :ion_treatment
+	belongs_to :ion_treatment	, :key => true
 end
 
 class Ms2IdSpectra
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :npeaks_median, 			Float
 	property :npeaks_interq, 			Float
@@ -575,12 +546,11 @@ class Ms2IdSpectra
 	property :id_score_interq, 			Float
 	property :idsc_med_q1msmx, 			Float
 
-	belongs_to :ms2
+	belongs_to :ms2	, :key => true
 end
 
 class Ms1IdMax
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median, 			Float
 	property :half_width, 			Float
@@ -591,47 +561,43 @@ class Ms1IdMax
 	property :_75_25_pctile, 			Float
 	property :_95_5_pctile, 			Float
 
-	belongs_to :ms1
+	belongs_to :ms1	, :key => true
 end
 
 class Ms1IdAbundAtMs2Acquisition
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median, 			Float
 	property :half_width, 			Float
 	property :_75_25_pctile, 			Float
 	property :_95_5_pctile, 			Float
 
-	belongs_to :ms2
+	belongs_to :ms2	, :key => true
 end
 
 class Ms2IdAbundReported
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median, 			Float
 	property :half_width, 			Float
 	property :_75_25_pctile, 			Float
 	property :_95_5_pctile, 			Float
 
-	belongs_to :ms2	
+	belongs_to :ms2		, :key => true
 end
 
 class MaxPeakWidthForIdsSec
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median_value, 			Float
 	property :third_quart, 			Float
 	property :last_decile, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class PeakWidthAtHalfHeightForIds
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median_value, 			Float
 	property :med_top_quart, 			Float
@@ -647,23 +613,21 @@ class PeakWidthAtHalfHeightForIds
 	property :ms1_scan_fwhm, 			Float
 	property :ids_used, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class PeakWidthsAtHalfMaxOverRtDecilesForIds
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :first_decile, 			Float
 	property :median_value, 			Float
 	property :last_decile, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class NearbyResamplingOfIdsOversamplingDetails
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :repeated_ids, 			Float
 	property :med_rt_diff_s, 			Float
@@ -672,44 +636,40 @@ class NearbyResamplingOfIdsOversamplingDetails
 	property :median_dm_z, 			Float
 	property :quart_dm_z, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class WideRtDifferencesForIds4Min
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :peptides, 			Float
 	property :spectra, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 =begin
 class FractionOfRepeatPeptideIdsWithDivergentRtRtVsRtBestIdChromatographicBleed
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :, 			Float
 	property :, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 =end
 
 class EarlyAndLateRtOversamplingSpectrumIdsUniquePeptideIdsChromatographicFlowThroughBleed
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :first_decile, 			Float
 	property :last_decile, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class PeptideIonIdsBy3SpectraHiVs13SpectraLoExtremeOversampling
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :pep_ions_hi, 			Float
 	property :ratio_hi_lo, 			Float
@@ -718,34 +678,31 @@ class PeptideIonIdsBy3SpectraHiVs13SpectraLoExtremeOversampling
 	property :spec_pep_hi, 			Float
 	property :spec_cnt_excess, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class RatiosOfPeptideIonsIdedByDifferentNumbersOfSpectraOversamplingMeasure
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :once_twice, 			Float
 	property :twice_thrice, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class SingleSpectrumPeptideIonIdentificationsOversamplingMeasure
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :peptide_ions, 			Float
 	property :fract_1_ions, 			Float
 	property :_1_vs_1_pepion, 			Float
 	property :_1_vs_1_spec, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class Ms1maxMs1sampledAbundanceRatioIdsInefficientSampling
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median_all_ids, 			Float
 	property :_3q_all_ids, 			Float
@@ -755,24 +712,22 @@ class Ms1maxMs1sampledAbundanceRatioIdsInefficientSampling
 	property :med_top_quart, 			Float
 	property :med_bottom_1_2, 			Float
 
-	belongs_to :dynamic_sampling
+	belongs_to :dynamic_sampling	, :key => true
 end
 
 class RtMs1maxRtMs2ForIdsSec
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :med_diff_abs, 			Float
 	property :median_diff, 			Float
 	property :first_quart, 			Float
 	property :third_quart, 			Float
 
-	belongs_to :chromatography
+	belongs_to :chromatography	, :key => true
 end
 
 class IonInjectionTimesForIdsMs
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :ms1_median, 			Float
 	property :ms1_maximum, 			Float
@@ -780,12 +735,11 @@ class IonInjectionTimesForIdsMs
 	property :ms2_maximun, 			Float
 	property :ms2_fract_max, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 class RelativeFractionOfPeptidesInRetentionDecileMatchingAPeptideInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :all_deciles, 			Float
 	property :first_decile, 			Float
@@ -793,34 +747,31 @@ class RelativeFractionOfPeptidesInRetentionDecileMatchingAPeptideInOtherRuns
 	property :comp_to_first, 			Float
 	property :comp_to_last, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class RelativeUniquenessOfPeptidesInDecileFoundAnywhereInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :first_decile, 			Float
 	property :last_decile, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class DifferencesInElutionRankPercentOfMatchingPeptidesInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :average_diff, 			Float
 	property :median_diff, 			Float
 	property :comp_to_first, 			Float
 	property :comp_to_last, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class MedianRatiosOfMs1IntensitiesOfMatchingPeptidesInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :median_diff, 			Float
 	property :median_2_diff, 			Float
@@ -829,34 +780,31 @@ class MedianRatiosOfMs1IntensitiesOfMatchingPeptidesInOtherRuns
 	property :comp_to_first_2, 			Float
 	property :comp_to_last_2, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class UncorrectedAndRtCorrectedRelativeIntensitiesOfMatchingPeptidesInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :uncor_rel_first, 			Float
 	property :uncor_rel_last, 			Float
 	property :corr_rel_first, 			Float
 	property :corr_rel_last, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class MagnitudeOfRtCorrectionOfIntensitiesOfMatchingPeptidesInOtherRuns
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :comp_to_first, 			Float
 	property :comp_to_last, 			Float
 
-	belongs_to :run_comparison
+	belongs_to :run_comparison	, :key => true
 end
 
 class TopIonAbundanceMeasures
 	include DataMapper::Resource
-	property :id, Serial
 
 	property :top_10_abund, 			Float
 	property :top_25_abund, 			Float
@@ -865,7 +813,7 @@ class TopIonAbundanceMeasures
 	property :fractab_top_10, 			Float
 	property :fractab_top_100, 			Float
 
-	belongs_to :ion_source
+	belongs_to :ion_source	, :key => true
 end
 
 
