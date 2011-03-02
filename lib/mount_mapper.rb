@@ -1,9 +1,18 @@
 
-
+require 'yaml'
 # ENV["HOME"] begins with /home/
 
 # ENV["OS"] returns "Windows NT" on MSally
-
+# System dependent locations
+if ENV["HOME"][/\/home\//] == '/home/'
+	Orbi_drive = "#{ENV["HOME"]}/chem/orbitrap/"
+	Jtp_drive = "#{ENV["HOME"]}/chem/lab/RAW/"
+	Database = "#{ENV["HOME"]}/chem/lab/"
+elsif ENV["OS"][/Windows/] == 'Windows'
+	Orbi_drive = "O:\\"
+	Jtp_drive = "S:\\RAW\\"
+	Database = "S:\\"
+end
 
 module MountedServer
 	DEFAULT_PORT = 22907  # arbitrary
@@ -23,12 +32,15 @@ module MountedServer
 		attr_accessor :mount_dir
 		attr_reader :mount_dir_pieces
 		attr_accessor :tmp_subdir
+		attr_accessor :archive_location, :windows_location, :linux_location, :metrics, :init, :graphs, :settings, :results, :analysis
 		def initialize(mount_dir, tmp_subdir=MountedServer::DEFAULT_MOUNT_TMP_SUBDIR)
 			@mount_dir = File.expand_path(mount_dir)
 			@mount_dir_pieces = split_filename(@mount_dir)
 			@tmp_subdir = tmp_subdir
 		end
-
+		def config
+			YAML.load_file(self.settings)
+		end
 		# OS independent filename splitter "/path/to/file" =>
 		# ['path','to','file']
 		def split_filename(fn)
