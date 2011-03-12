@@ -20,8 +20,14 @@ describe 'Matches to graph trace file from rawfile time' do
 end
 
 describe 'graphs eksigent output' do 
+	before do 
+		@tmp = Ms::Eksigent::Ultra2D.new
+		@tmp.rawfile = TESTFILE + '/time_test.RAW'
+		@tmp.eksfile = TESTFILE + '/ek2_test.txt'
+	end
 	it 'generates a .pdf with the appropriate name' do 
-		File.exist?(@tmp.graphfile).should.be true
+		file = @tmp.graph
+		@tmp.graphfile.should.equal file
 	end
 end
 

@@ -57,6 +57,7 @@ module Ms
 				@autosampler_vial = @data['vial_position']
 			end
 			def structs
+				parse if @data.nil?
 				@data['plotraw'].shift
 				@datapoints = []
 				@data['plotraw'].each do |line|
@@ -73,6 +74,7 @@ module Ms
 				output = Rserve::Simpler.new
 				datafr = Rserve::DataFrame.from_structs(@datapoints)
 # 	Struct.new(:time, :signal, :reference, :qa, :qb, :aux, :pa, :pb, :pc, :pd, :powera, :powerb)
+				File.open('/home/ryanmt/eksigent_datafr.yml', 'w') {|out| YAML::dump(datafr, out) }
 				captured = output.converse( eks_trace: datafr )  do 
 					%Q{pdf(file="#{@graphfile}", height=8, width=10)
 					par(mar=c(3,4,3,4)+0.1)

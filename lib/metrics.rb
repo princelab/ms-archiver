@@ -44,7 +44,7 @@ class Metric		# Metric parsing fxns
 					#puts "key: #{key} and array[index] = #{array[index]}"
 					key = snakecase(array[index])
 					#puts "key: #{key}"
-					@num_files = key[/files_analyzed_(\d)/,1].to_i if key[/(files_analyzed_).*/,1] == "files_analyzed_"
+					@num_files = key[/files_analyzed_(\d*)/,1].to_i if key[/(files_analyzed_).*/,1] == "files_analyzed_"
 				elsif outs_hash[key]
 					#puts "elsif put key: #{key} and array[index] = #{array[index]}"
 					outs_hash[key] << array[index].split("\t")
@@ -89,15 +89,15 @@ class Metric		# Metric parsing fxns
 	end
 	def to_database
 		require 'dm-migrations'
-#			DataMapper.auto_migrate!  # This one wipes things!
-			DataMapper.auto_upgrade!
+			DataMapper.auto_migrate!  # This one wipes things!
+	#		DataMapper.auto_upgrade!
 		objects = []; item = 1
 		@metrics_input_files.each do |file|
 			tmp = Msrun.first_or_create({raw_id: "#{File.basename(file,".RAW.MGF.TSV")}",  metricsfile: @metricsfile}) # rawfile: "#{File.absolute_path(File.basename(file, ".RAW.MGF.TSV")) + ".RAW"}",
-			tmp.metric = Metric.create()#{metric_input_file: @metricsfile })#"#{File.absolute_path(@metricsfile)}"})
-			@@categories.each {|category|  tmp.metric.send("#{category}=".to_sym, Kernel.const_get(camelcase(category)).create()) }
+			tmp.metric = Metric.first_or_create({msrun_raw_id: "#{File.basename(file, ".RAW.MGF.TSV")}"}) #, metric_input_file: @metricsfile })#"#{File.absolute_path(@metricsfile)}"})
+			@@categories.map {|category|  tmp.metric.send("#{category}=".to_sym, Kernel.const_get(camelcase(category)).first_or_create({id: tmp.metric.msrun_id})) }
 			@out_hash.each_pair do |key, value_hash|
-				outs = tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}=".to_sym, Kernel.const_get(camelcase(key)).create(value_hash)) 
+				outs = tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}=".to_sym, Kernel.const_get(camelcase(key)).first_or_create({id: tmp.metric.msrun_id}))#, value_hash )) 
 					value_hash.each_pair do |property, array|
 						tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}".to_sym).send("#{property}=".to_sym, array[item-1])
 					end
@@ -106,7 +106,9 @@ class Metric		# Metric parsing fxns
 			item +=1
 			objects << tmp
 		end
-		objects.each{|obj| obj.save}
+		worked = objects.map{|obj| obj.save!}
+		puts "\n----------------\nSave failed\n----------------" if worked.uniq.include?(false)
+		false if worked.uniq.include?(false)
 	end 	# to_database
 end 		# Metric parsing fxns
 
@@ -136,8 +138,10 @@ class Metric
 		measures = []
 		# matches is the result of a Msrun.all OR Msrun.first OR Msrun.get(*args)
 		@data = {}
+		matches = [matches] if matches.class != DataMapper::Collection
 		matches.each do |msrun|
 			next if msrun.metric.nil?
+			p msrun.raw_id
 			index = msrun.raw_id.to_s
 			@data[index] = {'timestamp' => msrun.rawtime || Time.now}
 			@@categories.each do |cat|
@@ -145,46 +149,131 @@ class Metric
 				@data[index][cat].keys.each do |subcat|	
 					@data[index][cat][subcat].delete('id'.to_sym)
 					@data[index][cat][subcat].delete("#{cat}_id".to_sym)
+					@data[index][cat][subcat].delete("#{cat}_metric_msrun_id".to_sym)
+					@data[index][cat][subcat].delete("#{cat}_metric_msrun_raw_id".to_sym)
+					@data[index][cat][subcat].delete_if {|key,v| puts "Key: #{key} \n Value: #{v}" if key.nil?}
 					@data[index][cat][subcat].each { |property, value| 
+						puts "Key: #{property} \n Value: #{value}" if property.nil?
 						measures << Measurement.new( property, index, @data[index]['timestamp'], value, cat.to_sym, subcat.to_sym) }
 				end
 			end
 		end
-		measures
+		measures.compact
 	end	# returns array of measurements
-	def graph_matches(matches)
-		measures = slice_matches(matches) #|| @measures
+	def graph_matches(new_match, old_match)
 		require 'rserve/simpler'
 		graphfiles = []
-		files = measures.map {|item| item.raw_id}.uniq
-		files.each do |file|
+		measures = [slice_matches(new_match), slice_matches(old_match)]
+		rawids = [measures.first.map {|item| item.raw_id}.uniq, measures.last.map {|item| item.raw_id}.uniq]
+		rawids.first.each do |rawid|
 			@@categories.map do |cat| 
-				subcats = measures.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
-				p subcats
-				subcat = subcats.first
-				graphfile = File.join([cat, (file + '_' + subcat)]) + '.pdf'
-				p graphfile
-				abort
-				graphfiles << graphfile
-				r_object = Rserve::Simpler.new 
-				structs = measures.map{|meas| meas if meas.category == cat.to_sym}.compact
+				new_subcats = measures.first.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
+				subcats = new_subcats 
+				subcats.each do |subcategory|
+					graphfile = File.join([cat, (rawid + '_' + subcategory.to_s)]) + '.pdf'
+					graphfiles << graphfile
+					r_object = Rserve::Simpler.new 
+					new_structs = measures.first.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
+					old_structs = measures.last.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
+					[new_structs, old_structs].each do |structs|
+						structs.each do |str|
+							str.value = str.value.to_f
+							str.name = str.name.to_s
+							str.category = str.category.to_s
+							str.subcat = str.subcat.to_s
+							str.time = str.time.to_s.gsub(/T/, ' ').gsub(/-(\d*):00/,' \100')
+						end
+					end
+=begin
+					require 'yaml'
+					require 'rserve/simpler'; datafr = YAML.load_file('metrics_datafr.yml'); r = Rserve::Simpler.new
 
-				datafr = Rserve::DataFrame.from_structs(structs)
-				r_object.converse( df: datafr )	do 
-					%Q{pdf(file="#{graphfile}", height=9, width=16)
-						library("beanplot")
-						attach(df)
-						sub_cat_num <- length(unique(subcat))
-						rows <- sub_cat_num / 3.0
-						par(mfrow=c(rows,3))
-						beanplot(subcat)
-						
+format(as.POSIXlt(arr), format="%y%m%d %X")
+2011-03-03T14:38:07-07:00 Must be converted to 
+"2011-03-03 14:38:07 0700"
+["2011", "03", "03", "14", "38", "07", "07", "00"]
+=end
+					datafr_new = Rserve::DataFrame.from_structs(new_structs)
+					datafr_old = Rserve::DataFrame.from_structs(old_structs)
+					r_object.converse( df_new: datafr_new )	do 		
+						#		pdf(file="#{graphfile}", height=9, width=16)
+						%Q{format(df_new$time <- as.POSIXlt(df_new$time), format="%y%m%d %X")
+							df_new$name <- factor(df_new$name)
+							df_new$category <-factor(df_new$category)
+							df_new$subcat <- factor(df_new$subcat)
+							df_new$raw_id <- factor(df_new$raw_id)
+						}
+					end # new datafr converse
+					r_object.converse( df_old: datafr_old) do 
+						%Q{format(df_old$time <- as.POSIXlt(df_old$time), format="%y%m%d %X")
+							df_old$name <- factor(df_old$name)
+							df_old$category <-factor(df_old$category)
+							df_old$subcat <- factor(df_old$subcat)
+							df_old$raw_id <- factor(df_old$raw_id)
+						}
+					end # old datafr converse
+					count = new_structs.map {|str| str.name }.uniq.compact.length
+					rows = (count / 3.0).ceil
+					i = 1;
+					while i <= count
+						r_object.converse do 
+							%Q{	df_new.#{i} <- subset(df_new, name == levels(df_new$name)[[#{i}]])
+								df_old.#{i} <- subset(df_old, name == levels(df_old$name)[[#{i}]])			
+							}
+						end # Configure the environment for the graphing, by setting up the numbered categories
+						i += 1 
+					end
+					r_object.converse do 
+						%Q{
+							library("beanplot")
+							par(mfrow=c(#{rows},3))
+						}
+					end # graph configuring
+					i = 1;
+					p r_object.converse('ls()')
+#					p r_object.converse('df_new')
+#					#p r_object.converse('df_old')
+#					p r_object.converse('df_new.1')
+#					p r_object.converse('df_old.1')
+#					p r_object.converse('df_new.2')
+#					p r_object.converse('df_old.2')
+					p r_object.converse('class(df_old.2$time[[1]])')
+					p r_object.converse('df_old.2$time')
+					p r_object.converse('df_old.2$value')
+					p r_object.converse("plot(df_old.#{i}$time, df_old.#{i}$value,type='l')")
+					r_object.pause
+					while i <= count
+						r_object.converse do 
+							%Q{ band1 <- try(bw.SJ(df_old.#{i}$value), silent=TRUE) 
+							if(inherits(band1, 'try-error')) band1 <- try(bw.nrd0(df_old.#{i}$value), silent=TRUE)
+					#			band2 <- try(bw.SJ(df_new.#{i}$value), silent=TRUE)
+					#		if(inherits(band2, 'try-error')) band2 <- try(bw.nrd0(df_new.#{i}$value), silent=TRUE)
+								beanplot(df_old.#{i}$value, df_new.#{i}$value, side='both', log="", ll=0.4, names=df_old$name[[#{i}]], col=list('grey',c('darkgrey', 'black')), bw=band1)
+								par(fig=c(0,0.4,0,0.4), new=T)
+								plot(df_old.#{i}$time, df_old.#{i}$value,type='l',ylab=df_old.#{i}$name[[1]])
+							}
+						end # graph it!!
+						r_object.pause
+						r_object.converse do 
+							%Q{tmp <- layout(matrix(c(1,1,2,3),2,2,byrow=T), widths=c(1,1), heights=c(4,1))
+							par(mar=c(.4,.4,.4,.4))
 
-					}
-				end
-				abort
-			end
-		end
+								layout.show(tmp)
+							#	band1 <- try(bw.SJ(df_old.#{i}$value), silent=TRUE) 
+						#	if(inherits(band1, 'try-error')) band1 <- try(bw.nrd0(df_old.#{i}$value), silent=TRUE)
+beanplot(df_old.#{i}$value, df_new.#{i}$value, side='both', log="", ll=0.4, names=df_old$name[[#{i}]], col=list('grey',c('darkgrey', 'black')), bw=band1)
+
+plot(df_old.#{i}$time, df_old.#{i}$value,type='l',ylab=df_old.#{i}$name[[1]])
+plot(df_new.#{i}$time, df_new.#{i}$value,type='l',ylab=df_new.#{i}$name[[1]])
+							}
+						end
+						r_object.pause
+						i +=1
+					end # while loop
+				end # subcats
+			end	# categories
+		end	# files.each 
+	
 		
 		#should graph the results... probably only if there are significant differences, but should also allow for specification of the parameter to graph... right?
 		# maybe I can have it only do a category at a time, and generate multiple graphs, one for each quality in the subset... crap this is getting complicated!!!
