@@ -16,6 +16,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'archiver'
 require 'mount_mapper'
 require 'eksigent'
+require 'merge'
 
 
 Bacon.summary_on_exit

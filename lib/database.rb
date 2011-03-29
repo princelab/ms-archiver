@@ -153,9 +153,6 @@ class DynamicSampling
 		hash[:ms1max_ms1sampled_abundance_ratio_ids_inefficient_sampling] = self.ms1max_ms1sampled_abundance_ratio_ids_inefficient_sampling.attributes
 		hash
 	end
-
-
-
 	def to_yaml
 		self.hashes.to_yaml
 	end
@@ -188,9 +185,6 @@ class IonSource
 		hash[:percent_of_ids_at_different_charges_and_mobile_protons_relative_to_ids_with_1_mobile_proton] = self.percent_of_ids_at_different_charges_and_mobile_protons_relative_to_ids_with_1_mobile_proton.attributes
 		hash
 	end
-
-
-
 	def to_yaml
 		self.hashes.to_yaml
 	end

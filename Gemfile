@@ -8,6 +8,8 @@ gem 'dm-types', ">=1.0.2"
 gem 'dm-migrations', ">=1.0.2"
 gem 'rserve-simpler', ">=0.0.2", :require => 'rserve/simpler'
 gem 'rserve-client', ">=0.2.5"
+gem 'erector', ">=0.8.2"
+gem 'deep_merge', ">=0.1.0"
 # gem 'net-ssh', ">=2.1.0"
 
 

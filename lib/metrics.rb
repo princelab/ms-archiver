@@ -169,9 +169,12 @@ class Metric
 			@@categories.map do |cat| 
 				new_subcats = measures.first.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
 				subcats = new_subcats 
+				Dir.mkdir(cat) if !Dir.exist?(cat)
 				subcats.each do |subcategory|
-					graphfile = File.join([cat, (rawid + '_' + subcategory.to_s)]) + '.pdf'
-					graphfiles << graphfile
+					graphfile_prefix = File.join([Dir.pwd, cat, (subcategory.to_s)]) 
+					# Without removing the file RAWID from the name:
+#graphfile_prefix = File.join([Dir.pwd, cat, (rawid + '_' + subcategory.to_s)]) 
+					#File.touch(graphfile) if !File.exist?(graphfile)
 					r_object = Rserve::Simpler.new 
 					new_structs = measures.first.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
 					old_structs = measures.last.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
@@ -184,19 +187,9 @@ class Metric
 							str.time = str.time.to_s.gsub(/T/, ' ').gsub(/-(\d*):00/,' \100')
 						end
 					end
-=begin
-					require 'yaml'
-					require 'rserve/simpler'; datafr = YAML.load_file('metrics_datafr.yml'); r = Rserve::Simpler.new
-
-format(as.POSIXlt(arr), format="%y%m%d %X")
-2011-03-03T14:38:07-07:00 Must be converted to 
-"2011-03-03 14:38:07 0700"
-["2011", "03", "03", "14", "38", "07", "07", "00"]
-=end
 					datafr_new = Rserve::DataFrame.from_structs(new_structs)
 					datafr_old = Rserve::DataFrame.from_structs(old_structs)
 					r_object.converse( df_new: datafr_new )	do 		
-						#		pdf(file="#{graphfile}", height=9, width=16)
 						%Q{format(df_new$time <- as.POSIXlt(df_new$time), format="%y%m%d %X")
 							df_new$name <- factor(df_new$name)
 							df_new$category <-factor(df_new$category)
@@ -213,7 +206,6 @@ format(as.POSIXlt(arr), format="%y%m%d %X")
 						}
 					end # old datafr converse
 					count = new_structs.map {|str| str.name }.uniq.compact.length
-					rows = (count / 3.0).ceil
 					i = 1;
 					while i <= count
 						r_object.converse do 
@@ -221,62 +213,39 @@ format(as.POSIXlt(arr), format="%y%m%d %X")
 								df_old.#{i} <- subset(df_old, name == levels(df_old$name)[[#{i}]])			
 							}
 						end # Configure the environment for the graphing, by setting up the numbered categories
-						i += 1 
-					end
-					r_object.converse do 
-						%Q{
-							library("beanplot")
-							par(mfrow=c(#{rows},3))
-						}
-					end # graph configuring
-					i = 1;
-					p r_object.converse('ls()')
-#					p r_object.converse('df_new')
-#					#p r_object.converse('df_old')
-#					p r_object.converse('df_new.1')
-#					p r_object.converse('df_old.1')
-#					p r_object.converse('df_new.2')
-#					p r_object.converse('df_old.2')
-					p r_object.converse('class(df_old.2$time[[1]])')
-					p r_object.converse('df_old.2$time')
-					p r_object.converse('df_old.2$value')
-					p r_object.converse("plot(df_old.#{i}$time, df_old.#{i}$value,type='l')")
-					r_object.pause
-					while i <= count
+						names = r_object.converse("levels(df_old$name)")
+						r_object.converse('library("beanplot")')
+						#r_object.converse(%Q{pdf(file="#{graphfile}", height=7, width=5)})
+						curr_name = r_object.converse("levels(df_old$name)[[#{i}]]")
+						graphfile = graphfile_prefix + '_' + curr_name + '.svg'
+						graphfiles << graphfile
+						r_object.converse(%Q{svg(file="#{graphfile}", bg="transparent", height=2, width=5)})
+						r_object.converse('par(mar=c(1,1,1,1), oma=c(2,1,1,1))')
 						r_object.converse do 
-							%Q{ band1 <- try(bw.SJ(df_old.#{i}$value), silent=TRUE) 
-							if(inherits(band1, 'try-error')) band1 <- try(bw.nrd0(df_old.#{i}$value), silent=TRUE)
-					#			band2 <- try(bw.SJ(df_new.#{i}$value), silent=TRUE)
-					#		if(inherits(band2, 'try-error')) band2 <- try(bw.nrd0(df_new.#{i}$value), silent=TRUE)
-								beanplot(df_old.#{i}$value, df_new.#{i}$value, side='both', log="", ll=0.4, names=df_old$name[[#{i}]], col=list('grey',c('darkgrey', 'black')), bw=band1)
-								par(fig=c(0,0.4,0,0.4), new=T)
-								plot(df_old.#{i}$time, df_old.#{i}$value,type='l',ylab=df_old.#{i}$name[[1]])
-							}
-						end # graph it!!
-						r_object.pause
-						r_object.converse do 
-							%Q{tmp <- layout(matrix(c(1,1,2,3),2,2,byrow=T), widths=c(1,1), heights=c(4,1))
-							par(mar=c(.4,.4,.4,.4))
-
-								layout.show(tmp)
-							#	band1 <- try(bw.SJ(df_old.#{i}$value), silent=TRUE) 
-						#	if(inherits(band1, 'try-error')) band1 <- try(bw.nrd0(df_old.#{i}$value), silent=TRUE)
-beanplot(df_old.#{i}$value, df_new.#{i}$value, side='both', log="", ll=0.4, names=df_old$name[[#{i}]], col=list('grey',c('darkgrey', 'black')), bw=band1)
-
-plot(df_old.#{i}$time, df_old.#{i}$value,type='l',ylab=df_old.#{i}$name[[1]])
-plot(df_new.#{i}$time, df_new.#{i}$value,type='l',ylab=df_new.#{i}$name[[1]])
+							%Q{	tmp <- layout(matrix(c(1,2),1,2,byrow=T), widths=c(3,4), heights=c(1,1))
+									tmp <- layout(matrix(c(1,2),1,2,byrow=T), widths=c(3,4), heights=c(1,1))		}
+							end
+							r_object.converse do 
+							%Q{	band1 <- try(bw.SJ(df_old.#{i}$value), silent=TRUE) 
+									if(inherits(band1, 'try-error')) band1 <- try(bw.nrd0(df_old.#{i}$value), silent=TRUE)		}
+							end
+							r_object.converse( "ylim = range(density(c(df_old.#{i}$value, df_new.#{i}$value), bw=band1)[[1]])")
+							r_object.converse do 
+								%Q{	beanplot(df_old.#{i}$value, df_new.#{i}$value,  side='both', log="", ll=0.4, names=df_old$name[[#{i}]], col=list('sandybrown',c('skyblue3', 'black')), innerborder='black', bw=band1)
+								plot(df_old.#{i}$time, df_old.#{i}$value,type='l', lwd=2.5, ylim = ylim, col='sandybrown', pch=15)
+								if (length(df_new.#{i}$value) > 5) {
+									lines(df_new.#{i}$time, df_new.#{i}$value,type='l',ylab=df_new.#{i}$name[[1]], col='skyblue3', pch=16, lwd=3 )
+								} else {
+									points(df_new.#{i}$time, df_new.#{i}$value,ylab=df_new.#{i}$name[[1]], col='skyblue4', bg='skyblue3', pch=21, cex=1.2)
+								}
+								dev.off()
 							}
 						end
-						r_object.pause
 						i +=1
 					end # while loop
 				end # subcats
 			end	# categories
 		end	# files.each 
-	
-		
-		#should graph the results... probably only if there are significant differences, but should also allow for specification of the parameter to graph... right?
-		# maybe I can have it only do a category at a time, and generate multiple graphs, one for each quality in the subset... crap this is getting complicated!!!
 		graphfiles
 	end # graph_files
 

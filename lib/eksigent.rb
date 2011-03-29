@@ -90,9 +90,10 @@ module Ms
 					par(new=TRUE)
 					plot(qb~time, axes=FALSE, type='l', ylim=c(0,max(qb)), xlab='', ylab='', col='red')
 					legend('left', legend=c("Pc", 'Flowrate of Solvent A', "Flowrate of Solvent B"), text.col=c('black', 'blue', 'red'),pch=c(16,16,16),col=c('black', 'blue', 'red'))
+					dev.off()
 					}
-					@graphfile
 				end
+				@graphfile
 			end #graph
 		end # Ultra2d
 	end # Eksigent
