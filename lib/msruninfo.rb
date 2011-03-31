@@ -7,7 +7,7 @@ require 'mount_mapper'
 # System Specific Constants
 Nist_dir = "C:\\NISTMSQC\\scripts"
 Nist_exe = "C:\\NISTMSQC\\scripts\\run_NISTMSQC_pipeline.pl"
-# System dependent locations
+#=begin # System dependent locations
 if ENV["HOME"][/\/home\//] == '/home/'
 	Orbi_drive = "#{ENV["HOME"]}/chem/orbitrap/"
 	Jtp_drive = "#{ENV["HOME"]}/chem/lab/RAW/"
@@ -20,13 +20,14 @@ end
 Jtp_mount = MountedServer::MountMapper.new(Jtp_drive)
 Orbi_mount = MountedServer::MountMapper.new(Orbi_drive)
 Db_mount = MountedServer::MountMapper.new(Database)
-
+#=end
 
 require 'xcalibur'
 require 'eksigent'
 require 'spawn_client'
 require 'metrics'
 require 'database'
+require 'archive_mount'
 
 module Ms
 	class MsrunInfo < 

@@ -6,7 +6,13 @@ require 'yaml'
 
 class ::Measurement < 
 # Structure, the entire basis for this class
-	Struct.new(:name, :raw_id, :time, :value, :category, :subcat)
+	Struct.new(:name, :raw_id, :time, :value, :category, :subcat) do 
+		def <=>(other) 
+			self[:name] == other[:name] ?
+			self[:raw_id] <=> other[:raw_id] :
+			self[:name] <=> other[:name] 
+		end
+	end
 end
 
 class Metric		# Metric parsing fxns
@@ -77,7 +83,6 @@ class Metric		# Metric parsing fxns
 		parse if @out_hash.nil?
 		@measures = []; @data = {}; item = 0
 		@metrics_input_files.each do |file|
-			#	@@categories.each {|category| 				NOT NECESSARY because I don't have to make the category class
 			@out_hash.each_pair do |subcategory, value_hash|
 				value_hash.each_pair do |property, value|
 					@measures << Measurement.new( property, File.basename(file,".RAW.MGF.TSV"), @rawtime, value[item], @@ref_hash[subcategory.to_sym].to_sym, subcategory.to_sym)
@@ -85,16 +90,18 @@ class Metric		# Metric parsing fxns
 			end
 			item +=1
 		end
-		@measures
+		@measures			# Do I need to compact this?
 	end
 	def to_database
 		require 'dm-migrations'
-			DataMapper.auto_migrate!  # This one wipes things!
-	#		DataMapper.auto_upgrade!
+	#		DataMapper.auto_migrate!  # This one wipes things!
+			DataMapper.auto_upgrade!
 		objects = []; item = 1
+		slice_hash if @measures.nil?
 		@metrics_input_files.each do |file|
 			tmp = Msrun.first_or_create({raw_id: "#{File.basename(file,".RAW.MGF.TSV")}",  metricsfile: @metricsfile}) # rawfile: "#{File.absolute_path(File.basename(file, ".RAW.MGF.TSV")) + ".RAW"}",
-			tmp.metric = Metric.first_or_create({msrun_raw_id: "#{File.basename(file, ".RAW.MGF.TSV")}"}) #, metric_input_file: @metricsfile })#"#{File.absolute_path(@metricsfile)}"})
+			tmp.metric = Metric.first_or_create({msrun_raw_id: "#{File.basename(file, ".RAW.MGF.TSV")}", metric_input_file: @metricsfile })
+			tmp.metric.metric_input_file= @metricsfile
 			@@categories.map {|category|  tmp.metric.send("#{category}=".to_sym, Kernel.const_get(camelcase(category)).first_or_create({id: tmp.metric.msrun_id})) }
 			@out_hash.each_pair do |key, value_hash|
 				outs = tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}=".to_sym, Kernel.const_get(camelcase(key)).first_or_create({id: tmp.metric.msrun_id}))#, value_hash )) 
@@ -141,7 +148,6 @@ class Metric
 		matches = [matches] if matches.class != DataMapper::Collection
 		matches.each do |msrun|
 			next if msrun.metric.nil?
-			p msrun.raw_id
 			index = msrun.raw_id.to_s
 			@data[index] = {'timestamp' => msrun.rawtime || Time.now}
 			@@categories.each do |cat|
@@ -151,14 +157,20 @@ class Metric
 					@data[index][cat][subcat].delete("#{cat}_id".to_sym)
 					@data[index][cat][subcat].delete("#{cat}_metric_msrun_id".to_sym)
 					@data[index][cat][subcat].delete("#{cat}_metric_msrun_raw_id".to_sym)
+					@data[index][cat][subcat].delete("#{cat}_metric_metric_input_file".to_sym)
 					@data[index][cat][subcat].delete_if {|key,v| puts "Key: #{key} \n Value: #{v}" if key.nil?}
 					@data[index][cat][subcat].each { |property, value| 
+if property[/run_comparison_metric/]
+					puts "PROBLEM IS HERE: #{property}" 
+					puts "index: #{index}\n cat: #{cat}\nsubcat: #{subcat}\nvalue: #{value}\nmsrun: #{msrun.class}"
+					abort
+	end
 						puts "Key: #{property} \n Value: #{value}" if property.nil?
 						measures << Measurement.new( property, index, @data[index]['timestamp'], value, cat.to_sym, subcat.to_sym) }
 				end
 			end
 		end
-		measures.compact
+		measures.compact  # Do I need to compact this?
 	end	# returns array of measurements
 	def graph_matches(new_match, old_match)
 		require 'rserve/simpler'

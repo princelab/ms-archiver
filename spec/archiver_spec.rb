@@ -1,10 +1,5 @@
 require 'spec_helper'
 
-#require 'parse_spec'
-#require 'eksigent_spec'
-#require 'metric_spec'
-#require 'database_spec'
-
 describe 'MsrunInfo Object behaves' do 
 	before do 
 		file = TESTFILE + '/SWG_serum_100511165501.sld'
@@ -42,9 +37,5 @@ describe 'Ssh Utility' do
 		to_linux(@msrun.to_yaml).should.equal "C:\\cygwin\\bin\\ssh ryanmt@jp1 -C '/home/ryanmt/Dropbox/coding/ms/archiver/lib/archiver.rb --linux /tmp/tmp.yml '"
 
 	end
-
-		
-
-
 
 end

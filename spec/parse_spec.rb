@@ -56,10 +56,14 @@ describe 'Builds the MsrunInfo thing' do
 		@msrun.grab_files
 	end
 	it 'gets tunefile' do 
-		@msrun.tunefile[/(\..*)$/,1].should.equal ".LTQTune"
+		if File.exist?(@msrun.methodfile )
+			@msrun.tunefile[/(\..*)$/,1].should.equal ".LTQTune"
 		end
+	end
 	it 'gets eksfile' do 
-		@msrun.hplcfile[/ek2.*(\..*)$/,1].should.equal ".txt"
+		if File.exist?(@msrun.methodfile)
+			@msrun.hplcfile[/ek2.*(\..*)$/,1].should.equal ".txt"
+		end
 	end
 	it 'has same data as @sld' do 
 		@sld.sldfile.should.equal @msrun.sldfile
@@ -67,11 +71,11 @@ describe 'Builds the MsrunInfo thing' do
 		@sld.sldrows.first.rawfile.should.equal @msrun.rawfile
 		@sld.sldrows.first.sequence_vial.should.equal @msrun.sequence_vial
 	end
-end
-
-
-if ENV["OS"] && ENV["OS"][/Windows/] == 'Windows'
-	describe 'finds eksigent output files' do 
-	
+	if ENV["OS"] && ENV["OS"][/Windows/] == 'Windows'
+		it 'parses the EKS file!!' do 
+			@msrun.inj_volume.class.should.equal (3.0).class
+		end
 	end
 end
+
+

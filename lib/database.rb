@@ -65,7 +65,8 @@ end
 class Metric 
 	include DataMapper::Resource
 	#	property :id, Serial			
-	#property :metric_input_file, 	FilePath#, :key => true
+	property :metric_input_file, 	FilePath, :key => true
+	#property :metric_input_file, 			FilePath
 	
 # Associations
 	has 1, :chromatography
@@ -105,7 +106,6 @@ hash[:wide_rt_differences_for_ids_4_min] = self.wide_rt_differences_for_ids_4_mi
 hash[:rt_ms1max_rt_ms2_for_ids_sec] = self.rt_ms1max_rt_ms2_for_ids_sec.attributes
 		hash
 	end
-	
 	def to_yaml
 		self.hashes.to_yaml
 	end
@@ -176,7 +176,7 @@ class IonSource
 		hash = {}
 		hash[:spectrum_counts] = self.spectrum_counts.attributes
 		hash[:ion_injection_times_for_ids_ms] = self.ion_injection_times_for_ids_ms.attributes
-		hash[:top_ion_abundance_measures] = self.top_ion_abundance_measures.attributes
+		hash[:top_ion_abundance_measures] = self.top_ion_abundance_measures.attributes if self.top_ion_abundance_measures.respond_to?(:attributes)
 		hash[:number_of_ions_vs_charge] = self.number_of_ions_vs_charge.attributes
 		hash[:ion_ids_by_charge_state_relative_to_2] = self.ion_ids_by_charge_state_relative_to_2.attributes
 		hash[:average_peptide_lengths_for_different_charge_states] = self.average_peptide_lengths_for_different_charge_states.attributes
@@ -225,7 +225,6 @@ class PeptideIds
 		hash[:averages_vs_rt_for_ided_peptides] = self.averages_vs_rt_for_ided_peptides.attributes
 		hash
 	end
-
 	def to_yaml
 		self.hashes.to_yaml
 	end
@@ -248,7 +247,6 @@ class Ms2
 		hash[:ms2_id_abund_reported] = self.ms2_id_abund_reported.attributes
 		hash
 	end
-
 	def to_yaml
 		self.hashes.to_yaml
 	end
@@ -267,15 +265,14 @@ class RunComparison
 	belongs_to :metric, :key => true
 	def hashes
 		hash = {}
-		hash[:relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs] = self.relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs.attributes
-		hash[:relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs] = self.relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs.attributes
-		hash[:differences_in_elution_rank_percent_of_matching_peptides_in_other_runs] = self.differences_in_elution_rank_percent_of_matching_peptides_in_other_runs.attributes
-		hash[:median_ratios_of_ms1_intensities_of_matching_peptides_in_other_runs] = self.median_ratios_of_ms1_intensities_of_matching_peptides_in_other_runs.attributes
-		hash[:uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs] = self.uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs.attributes
-		hash[:magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs] = self.magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs.attributes
+		hash[:relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs] = self.relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs.attributes if self.relative_fraction_of_peptides_in_retention_decile_matching_a_peptide_in_other_runs.respond_to?(:attributes)
+		hash[:relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs] = self.relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs.attributes if self.relative_uniqueness_of_peptides_in_decile_found_anywhere_in_other_runs.respond_to?(:attributes)
+		hash[:differences_in_elution_rank_percent_of_matching_peptides_in_other_runs] = self.differences_in_elution_rank_percent_of_matching_peptides_in_other_runs.attributes if self.differences_in_elution_rank_percent_of_matching_peptides_in_other_runs.respond_to?(:attributes)
+		hash[:median_ratios_of_ms1_intensities_of_matching_peptides_in_other_runs] = self.median_ratios_of_ms1_intensities_of_matching_peptides_in_other_runs.attributes if self.median_ratios_of_ms1_intensities_of_matching_peptides_in_other_runs.respond_to?(:attributes)
+		hash[:uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs] = self.uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs.attributes if self.uncorrected_and_rt_corrected_relative_intensities_of_matching_peptides_in_other_runs.respond_to?(:attributes)
+		hash[:magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs] = self.magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs.attributes if self.magnitude_of_rt_correction_of_intensities_of_matching_peptides_in_other_runs.respond_to?(:attributes)
 		hash
 	end
-
 	def to_yaml
 		self.hashes.to_yaml
 	end

@@ -71,7 +71,7 @@ module MountedServer
 			dest
 		end
 
-		def cp_to(filename, mounted_dest)
+		def cp_to(filename, mounted_dest) # Always returns the destination as an explicit location relative to the mount directory
 			dest = File.join(@mount_dir, mounted_dest, File.basename(filename))
 			puts 'DESTINATION:   															______________'
 			p dest

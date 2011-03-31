@@ -1,0 +1,38 @@
+body {
+	font-size: 1em;
+}
+
+img {
+	border-style: line; 
+	border-width: 8px;
+	border-color: #aaa;
+}
+h1, h2 { margin: 0; }
+
+#header ul { 
+	list-style: none; 
+	margin: 0;
+}
+
+#header li { 
+	display: inline-block; 
+	padding: 0px 18px 0px 0px;
+}
+
+#header a {
+	font: 0.9em arial, helvetica, sans-serif;
+}
+
+#content {
+	margin-top: 2em;
+	margin: 0 10em;
+}
+
+
+
+
+
+
+
+
+
