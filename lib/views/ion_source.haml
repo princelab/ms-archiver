@@ -1,0 +1,20 @@
+#content
+	- category = "ion_source"
+	- Ref_hash = {ion_ids_by_charge_state_relative_to_2: "Ion IDs by Charge State (Relative to z=+2)", numbers_of_ion_ids_at_different_charges_with_1_mobile_proton: "Numbers of Ion IDs at Different Charges with 1 Mobile Proton", spectrum_counts: "Spectrum Counts", average_peptide_lengths_for_different_charge_states: "Average Peptide Lengths for Different Charge States", ion_injection_times_for_ids_ms: "Ion Injection Times for IDs (milliseconds)", top_ion_abundance_measures: "Top Ion Abundance Measures", average_peptide_lengths_for_charge_2_for_different_numbers_of_mobile_protons: "Average Peptide Lengths for Charge +2 for Different Numbers of Mobile Protons", number_of_ions_vs_charge: "Number of Ions vs Charge", percent_of_ids_at_different_charges_and_mobile_protons_relative_to_ids_with_1_mobile_proton: "% of IDs at Different Charges and Mobile Protons Relative to IDs with 1 Mobile Proton"}
+	%h1 Testing this whole system out, I am	
+	#overview
+	- Dir.chdir('lib/public')
+	- subcats = Dir.glob("#{category}/*/*.svg").map{|a| a.slice(/.*?\/(.*?)\/\w*?\.svg/,1)}.uniq.compact
+	%ul
+	- subcats.sort.each do |subcat|
+		%li 
+			=link_to("##{subcat}", subcat)
+	#pictures
+	- subcats.sort.each do |subcat|
+		%h2{:id => subcat }= Ref_hash[subcat.to_sym]
+		- @a = Dir.glob("#{category}/#{subcat}/*.svg")
+		- @a.map do |a|
+			=  img(a) 
+		%p 
+
+		= link_to("#overview", "Return to the top") 

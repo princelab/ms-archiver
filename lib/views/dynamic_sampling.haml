@@ -1,0 +1,20 @@
+#content
+	- category = "dynamic_sampling"
+	- Ref_hash = {ratios_of_peptide_ions_ided_by_different_numbers_of_spectra_oversampling_measure: "Ratios of Peptide Ions IDed by Different Numbers of Spectra - A Measure of Oversampling", peptide_ion_ids_by_3_spectra_hi_vs_1_3_spectra_lo_extreme_oversampling: "Peptide Ion IDs by > 3 Spectra (High) vs 1-3 Spectra (Low) - Extreme Oversampling", single_spectrum_peptide_ion_identifications_oversampling_measure: "Single Spectrum Peptide Identifications - Oversampling Measure", ms1max_ms1sampled_abundance_ratio_ids_inefficient_sampling: "MS1max/MS1sample Abundance Ratio IDs - Inefficient Sampling", nearby_resampling_of_ids_oversampling_details: "Nearby Resampling of IDs - Oversampling Details", early_and_late_rt_oversampling_spectrum_ids_unique_peptide_ids_chromatographic_flow_through_bleed: "Early and Late RT Oversampling (Spectrum IDs/Unique Peptide IDs) - Chromatographic: Flow Through/Bleed" }
+	%h1 Testing this whole system out, I am	
+	#overview
+	- Dir.chdir('lib/public')
+	- subcats = Dir.glob("#{category}/*/*.svg").map{|a| a.slice(/.*?\/(.*?)\/\w*?\.svg/,1)}.uniq.compact
+	%ul
+	- subcats.sort.each do |subcat|
+		%li 
+			=link_to("##{subcat}", subcat)
+	#pictures
+	- subcats.sort.each do |subcat|
+		%h2{:id => subcat }= Ref_hash[subcat.to_sym]
+		- @a = Dir.glob("#{category}/#{subcat}/*.svg")
+		- @a.map do |a|
+			=  img(a) 
+		%p 
+
+		= link_to("#overview", "Return to the top") 

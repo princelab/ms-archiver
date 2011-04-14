@@ -1,0 +1,12 @@
+#content
+	%h1 Here is where you can select the database settings you'd like to examine
+	- @msruns = Msrun.all
+	%ul
+		%li Run #			RawID			TimeStamp
+		- @msruns.each do |run|
+			%li== #{run.id}		|		#{run.raw_id}			|			#{run.rawtime || Time.random}
+	%p 
+		
+
+
+

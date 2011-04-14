@@ -2,7 +2,7 @@ require 'msruninfo'
 require 'xcalibur'
 require 'eksigent'
 require 'optparse'
-
+require 'archive_mount'
 # this package handles options and configures the packaging and archiving of 
 # data produced by the instrument, as well as archiving of all the files used
 # during the run 
@@ -58,7 +58,8 @@ if options[:xcalibur]
 	sld = Ms::Xcalibur::Sld.new(file).parse
 	object = Ms::MsrunInfo.new(sld.sldrows[line_num])
 	object.grab_files
-	to_linux(object.to_yaml)
+	Ms::ArchiveMount.archive(object)
+	send_msruninfo_to_linux_via_ssh(object.to_yaml)
 end
 
 if options[:linux]

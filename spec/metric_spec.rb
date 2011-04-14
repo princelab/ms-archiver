@@ -34,7 +34,7 @@ describe 'parses metrics and databases them' do
 	end
 
 end
-=end
+#=end
 describe 'generates a lot of metrics' do 
 	before do 
 		@files = Dir.entries(TESTFILE + '/metrics/')
@@ -45,15 +45,18 @@ describe 'generates a lot of metrics' do
 	end
 	it 'handles all the metrics' do
 		@files.each do |file|
-			@metrics << Metric.new(file)
-			@metrics.last.slice_hash
-			@metrics.last.to_database
+			a  = Metric.new(file)
+			a.slice_hash
+			a.to_database
+			@metrics << a 
 		end
 # NOT TRUE!!!  Since each file can contribute many metrics to the mix
-		@files.length.should.equal Msrun.all.length	
+	#	@files.length.should.equal Msrun.all.length	
+# WHAT CAN I use as a new test?
 	end
 end
-=begin
+=end
+#=begin
 describe 'graphs metrics' do 
 	before do 
 		@metric = Metric.new( TESTFILE + '/test3__1.txt')
@@ -73,5 +76,5 @@ describe 'graphs metrics' do
 	end
 
 end
-=end
 
+#=end

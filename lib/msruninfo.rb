@@ -51,9 +51,7 @@ module Ms
 			@hplcfile = @hplc_object.eksfile
 			@hplc_vial = @hplc_object.autosampler_vial
 		end
-		def move_files
 			
-		end
 		def graph_pressure
 			@graphfile = @hplc_object.graph
 		end

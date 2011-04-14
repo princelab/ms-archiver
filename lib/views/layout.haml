@@ -1,0 +1,40 @@
+!!!
+%html
+	%head
+		%title Your local Database of Metrics
+		%link(rel='stylesheet' href='http://fonts.googleapis.com/css?family=PT+Sans')
+		%link(rel='stylesheet' href='css/styles.css')
+	%body
+		#wrapper
+			#header
+				%ul
+					%li 
+						=link_to('index', "Start Over")
+					%li 
+						=link_to('home', "Home")
+					%li 
+						=link_to('chromatography', "Chromatography")
+					%li 
+						=link_to( 'dynamic_sampling', "Dynamic Sampling")
+					%li 
+						=link_to('ion_source', "Ion Source")
+					%li 
+						=link_to('ion_treatment', "Ion Treatment")
+					%li 
+						=link_to('ms1', "Primary MS")
+					%li 
+						=link_to('ms2', "Ms2")
+					%li 
+						=link_to('peptide_id', "Peptide ID")
+					%li 
+						=link_to('run_comparison', "Run Comparison")
+			
+			#content
+				=yield
+
+			#side_bar
+
+			#footer
+
+/%pre means preformatted text, displayed as a block. Includes all formatting, including new lines, tabs, etc.
+/%code same but inline

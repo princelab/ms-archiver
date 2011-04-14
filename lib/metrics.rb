@@ -12,6 +12,16 @@ class ::Measurement <
 			self[:raw_id] <=> other[:raw_id] :
 			self[:name] <=> other[:name] 
 		end
+		def to_s
+			out = []
+			out << "Name: #{self.name}"
+			out << "Value: #{self.value}"
+			out << "Raw file id: #{self.raw_id}"
+			out << "Time stamp: #{self.time}"
+			out << "Category <- Subcategory: #{self.category} <- #{self.subcat}"
+			out.join("\n")
+			"struct Measurement name=#{self.name}, raw_id=#{self.raw_id}, time=#{self.time}, value=#{self.value}, category=#{self.category}, subcat=#{self.subcat}"
+		end
 	end
 end
 
@@ -130,7 +140,7 @@ class Metric
 		matches.each do |msrun|
 			next if msrun.metric.nil?
 				index = msrun.raw_id.to_s
-				@data[index] = {'timestamp' => msrun.rawtime || Time.now}
+				@data[index] = {'timestamp' => msrun.rawtime || Time.random(1)}
 			@@categories.each do |cat|
 				@data[index][cat] = msrun.metric.send(cat.to_sym).hashes
 				@data[index][cat].keys.each do |subcat|	
@@ -177,6 +187,7 @@ if property[/run_comparison_metric/]
 		graphfiles = []
 		measures = [slice_matches(new_match), slice_matches(old_match)]
 		rawids = [measures.first.map {|item| item.raw_id}.uniq, measures.last.map {|item| item.raw_id}.uniq]
+		r_object = Rserve::Simpler.new 
 		rawids.first.each do |rawid|
 			@@categories.map do |cat| 
 				new_subcats = measures.first.map{|meas| meas.subcat if meas.category == cat.to_sym}.compact.uniq
@@ -184,10 +195,10 @@ if property[/run_comparison_metric/]
 				Dir.mkdir(cat) if !Dir.exist?(cat)
 				subcats.each do |subcategory|
 					graphfile_prefix = File.join([Dir.pwd, cat, (subcategory.to_s)]) 
+					Dir.mkdir(graphfile_prefix) if !Dir.exist?(graphfile_prefix)
 					# Without removing the file RAWID from the name:
 #graphfile_prefix = File.join([Dir.pwd, cat, (rawid + '_' + subcategory.to_s)]) 
 					#File.touch(graphfile) if !File.exist?(graphfile)
-					r_object = Rserve::Simpler.new 
 					new_structs = measures.first.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
 					old_structs = measures.last.map{|meas| meas if meas.subcat == subcategory.to_sym}.compact
 					[new_structs, old_structs].each do |structs|
@@ -201,22 +212,30 @@ if property[/run_comparison_metric/]
 					end
 					datafr_new = Rserve::DataFrame.from_structs(new_structs)
 					datafr_old = Rserve::DataFrame.from_structs(old_structs)
+					p r_object.converse(df_old: datafr_old) {%Q{ strptime(as.character(df_old$time), "%Y-%m-%d %X")} }
 					r_object.converse( df_new: datafr_new )	do 		
-						%Q{format(df_new$time <- as.POSIXlt(df_new$time), format="%y%m%d %X")
+						%Q{df_new$time <- strptime(as.character(df_new$time), "%Y-%m-%d %X"
+						}
+=begin
+
 							df_new$name <- factor(df_new$name)
 							df_new$category <-factor(df_new$category)
 							df_new$subcat <- factor(df_new$subcat)
 							df_new$raw_id <- factor(df_new$raw_id)
-						}
+=end
 					end # new datafr converse
+					p r_object.converse { "df_new$time" }
+					p r_object.converse { "df_old$time" }
 					r_object.converse( df_old: datafr_old) do 
-						%Q{format(df_old$time <- as.POSIXlt(df_old$time), format="%y%m%d %X")
+						%Q{df_old$time <- strptime(as.character(df_old$time), "%Y-%m-%d %X")
 							df_old$name <- factor(df_old$name)
 							df_old$category <-factor(df_old$category)
 							df_old$subcat <- factor(df_old$subcat)
 							df_old$raw_id <- factor(df_old$raw_id)
 						}
 					end # old datafr converse
+					r_object.converse{"plot(df_old$time, df_old$name)"}
+					r_object.pause
 					count = new_structs.map {|str| str.name }.uniq.compact.length
 					i = 1;
 					while i <= count
@@ -226,10 +245,14 @@ if property[/run_comparison_metric/]
 							}
 						end # Configure the environment for the graphing, by setting up the numbered categories
 						names = r_object.converse("levels(df_old$name)")
+						times = r_object.converse("df_old$time")
+						p times
 						r_object.converse('library("beanplot")')
 						#r_object.converse(%Q{pdf(file="#{graphfile}", height=7, width=5)})
 						curr_name = r_object.converse("levels(df_old$name)[[#{i}]]")
-						graphfile = graphfile_prefix + '_' + curr_name + '.svg'
+						graphfile = File.join([graphfile_prefix, curr_name + '.svg'])
+						puts graphfile
+
 						graphfiles << graphfile
 						r_object.converse(%Q{svg(file="#{graphfile}", bg="transparent", height=2, width=5)})
 						r_object.converse('par(mar=c(1,1,1,1), oma=c(2,1,1,1))')

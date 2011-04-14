@@ -1,5 +1,4 @@
 
- require 'msruninfo'
 def unpack(string)
 	string.unpack("C*").map{|val| val if val == 9 || val == 10 || val == 13 || (val > 31 && val < 127) }
 end

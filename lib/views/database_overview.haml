@@ -1,0 +1,8 @@
+#content 
+	%h1 This should be an interface to show the entire set of database entries, and sort them by date, time, user, group, and taxonomy.
+	%p Cool idea... let's see about making it work, eh?
+
+	%p== #{@metrics.first.methods}
+	%p= @metrics.first.slice_matches(@msruns).first.methods - Struct.methods
+	%p= @metrics.first.slice_matches(@msruns).first
+	%p= @metrics.first.chromatography.peak_width_at_half_height_for_ids.attributes

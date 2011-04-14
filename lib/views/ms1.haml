@@ -1,0 +1,20 @@
+#content
+	- category = "ms1"
+	- Ref_hash = {ms1_total_ion_current_for_different_rt_periods: "MS1 Total Ion Current for Different RT Periods", ms1_during_middle_and_early_peptide_retention_period: "MS1 during Middle and Early Peptide Retention Periods", ms1_id_max: "MS1 ID Max"}
+	%h1 Testing this whole system out, I am	
+	#overview
+	- Dir.chdir('lib/public')
+	- subcats = Dir.glob("#{category}/*/*.svg").map{|a| a.slice(/.*?\/(.*?)\/\w*?\.svg/,1)}.uniq.compact
+	%ul
+	- subcats.sort.each do |subcat|
+		%li 
+			=link_to("##{subcat}", subcat)
+	#pictures
+	- subcats.sort.each do |subcat|
+		%h2{:id => subcat }= Ref_hash[subcat.to_sym]
+		- @a = Dir.glob("#{category}/#{subcat}/*.svg")
+		- @a.map do |a|
+			=  img(a) 
+		%p 
+
+		= link_to("#overview", "Return to the top") 

@@ -1,0 +1,20 @@
+#content
+	- category = "ion_treatment"
+	- Ref_hash = {precursor_m_z_monoisotope_exact_m_z: "Precursor m/z - Monoisotope Exact m/z"}
+	%h1 Testing this whole system out, I am	
+	#overview
+	- Dir.chdir('lib/public')
+	- subcats = Dir.glob("#{category}/*/*.svg").map{|a| a.slice(/.*?\/(.*?)\/\w*?\.svg/,1)}.uniq.compact
+	%ul
+	- subcats.sort.each do |subcat|
+		%li 
+			=link_to("##{subcat}", subcat)
+	#pictures
+	- subcats.sort.each do |subcat|
+		%h2{:id => subcat }= Ref_hash[subcat.to_sym]
+		- @a = Dir.glob("#{category}/#{subcat}/*.svg")
+		- @a.map do |a|
+			=  img(a) 
+		%p 
+
+		= link_to("#overview", "Return to the top") 

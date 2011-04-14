@@ -35,7 +35,6 @@ describe 'Ssh Utility' do
 	end
 	it 'sends the correct signal' do 
 		to_linux(@msrun.to_yaml).should.equal "C:\\cygwin\\bin\\ssh ryanmt@jp1 -C '/home/ryanmt/Dropbox/coding/ms/archiver/lib/archiver.rb --linux /tmp/tmp.yml '"
-
 	end
 
 end

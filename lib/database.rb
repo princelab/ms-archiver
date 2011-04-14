@@ -40,7 +40,9 @@ class Msrun
 	property :sample_type, 	String, :default => 'unknown'
 
 	# Time
-	property :rawtime, 			DateTime, :default => lambda { |r, p| File.mtime(r.rawfile) if r.rawfile and File.exist?(r.rawfile) }
+
+######################## REMOVE THE random reference
+	property :rawtime, 			DateTime, :default => lambda { |r, p| File.mtime(r.rawfile) if r.rawfile and File.exist?(r.rawfile) || Time.random(1) } 
 
 	# Files
 	property :rawfile, 					FilePath

@@ -1,5 +1,4 @@
 
-require 'yaml'
 # ENV["HOME"] begins with /home/
 
 # ENV["OS"] returns "Windows NT" on MSally
@@ -84,5 +83,23 @@ module MountedServer
 		def full_path(relative_filename)
 			File.join(@mount_dir, relative_filename)
 		end
+	end
+end
+
+
+
+
+
+
+#########################333333 RANDOM TIME GENERATOR!!!
+
+class Time
+	def self.random(years_back=1)
+		year = Time.now.year - rand(years_back) - 1
+		month = rand(12) + 1
+		day = rand(31) + 1 
+		hour = rand(23) + 1
+		minute = rand(59) + 1
+		Time.local(year, month, day, hour, minute)
 	end
 end
