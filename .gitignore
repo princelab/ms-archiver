@@ -18,6 +18,7 @@ pkg
 spec/tfiles
 
 # HTML stuff
+html
 ion_source
 ion_treatment
 ms1
