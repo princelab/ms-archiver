@@ -2,7 +2,9 @@
 	%h1 Here is where you can select the database settings you'd like to examine
 	- @msruns = Msrun.all
 	%table
-		%th Run #			RawID			TimeStamp
+		%th Run #	
+		%th RawID	
+		%th TimeStamp
 		- @msruns.each do |run|
 			%tr
 				%td=run.id
