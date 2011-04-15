@@ -42,7 +42,13 @@ class Msrun
 	# Time
 
 ######################## REMOVE THE random reference
-	property :rawtime, 			DateTime, :default => lambda { |r, p| File.mtime(r.rawfile) if r.rawfile and File.exist?(r.rawfile) || Time.random(1) } 
+	property :rawtime, 			DateTime, :default => lambda { |r, p| 
+		if  r.rawfile and File.exist?(r.rawfile)
+			File.mtime(r.rawfile)
+		else 
+			Time.random(1)
+		end
+	}
 
 	# Files
 	property :rawfile, 					FilePath
