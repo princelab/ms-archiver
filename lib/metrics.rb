@@ -11,13 +11,6 @@ class ::Measurement <
 			self[:time] <=> other[:time]
 		end
 		def to_s
-			out = []
-			out << "Name: #{self.name}"
-			out << "Value: #{self.value}"
-			out << "Raw file id: #{self.raw_id}"
-			out << "Time stamp: #{self.time}"
-			out << "Category <- Subcategory: #{self.category} <- #{self.subcat}"
-			out.join("\n")
 			"struct Measurement name=#{self.name}, raw_id=#{self.raw_id}, time=#{self.time}, value=#{self.value}, category=#{self.category}, subcat=#{self.subcat}"
 		end
 	end
@@ -37,13 +30,13 @@ class Metric		# Metric parsing fxns
 	def run_metrics(rawfile = nil)
 		if @rawfile
 			@rawfile = rawfile
-			@rawtime = File.mtime(@rawfile)
+			@rawtime = File.mtime(@rawfile) 
 # working on some major changes to the mount thing... that lets me have it do the work for me!!
 			#%Q{C:\\NISTMSQCv1_0_3\\scripts\\run_NISTMSQC_pipeline.pl --in_dir "#{ArchiveMount.archive_location}" --out_dir "#{ArchiveMount.metrics}" --library #{ArchiveMount.config.metric_taxonomy}  --instrument_type #{ArchiveMount.config.metric_instrument_type || 'ORBI'} }
 		end
 	end
 	def archive
-		parse
+		parse if @out_hash.nil?
 		to_database
 	end
 	def parse				# Returns the out_hash
@@ -93,7 +86,7 @@ class Metric		# Metric parsing fxns
 		@metrics_input_files.each do |file|
 			@out_hash.each_pair do |subcategory, value_hash|
 				value_hash.each_pair do |property, value|
-					@measures << Measurement.new( property, File.basename(file,".RAW.MGF.TSV"), @rawtime, value[item], @@ref_hash[subcategory.to_sym].to_sym, subcategory.to_sym)
+					@measures << Measurement.new( property, File.basename(file,".RAW.MGF.TSV"), @rawtime || Time.random(2), value[item], @@ref_hash[subcategory.to_sym].to_sym, subcategory.to_sym)
 				end
 			end
 			item +=1
@@ -104,17 +97,26 @@ class Metric		# Metric parsing fxns
 		require 'dm-migrations'
 	#		DataMapper.auto_migrate!  # This one wipes things!
 			DataMapper.auto_upgrade!
-		objects = []; item = 1
+		objects = []; item = 0
 		slice_hash if @measures.nil?
 		@metrics_input_files.each do |file|
 			tmp = Msrun.first_or_create({raw_id: "#{File.basename(file,".RAW.MGF.TSV")}",  metricsfile: @metricsfile}) # rawfile: "#{File.absolute_path(File.basename(file, ".RAW.MGF.TSV")) + ".RAW"}",
+			
+
+
+	#### SHOULDN"T NEED TO BE HERE!!!!!!!!!! WHAT IS WRONG WITH DATAMAPPER!!!???
+			tmp.rawtime= Time.random(2)
+			p tmp.save
+			p tmp.raw_id
+puts '=============--------------------------------============================'
+
 			tmp.metric = Metric.first_or_create({msrun_raw_id: "#{File.basename(file, ".RAW.MGF.TSV")}", metric_input_file: @metricsfile })
 			tmp.metric.metric_input_file= @metricsfile
 			@@categories.map {|category|  tmp.metric.send("#{category}=".to_sym, Kernel.const_get(camelcase(category)).first_or_create({id: tmp.metric.msrun_id})) }
 			@out_hash.each_pair do |key, value_hash|
 				outs = tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}=".to_sym, Kernel.const_get(camelcase(key)).first_or_create({id: tmp.metric.msrun_id}))#, value_hash )) 
 					value_hash.each_pair do |property, array|
-						tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}".to_sym).send("#{property}=".to_sym, array[item-1])
+						tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}".to_sym).send("#{property}=".to_sym, array[item])
 					end
 				tmp.metric.send((@@ref_hash[key.to_sym]).to_sym).send("#{key.downcase}".to_sym).save
 			end
@@ -138,7 +140,7 @@ class Metric
 		matches.each do |msrun|
 			next if msrun.metric.nil?
 				index = msrun.raw_id.to_s
-				@data[index] = {'timestamp' => msrun.rawtime}
+				@data[index] = {'timestamp' => msrun.rawtime || Time.random(1)}
 			@@categories.each do |cat|
 				@data[index][cat] = msrun.metric.send(cat.to_sym).hashes
 				@data[index][cat].keys.each do |subcat|	

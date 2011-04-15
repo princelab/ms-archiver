@@ -46,7 +46,7 @@ class Msrun
 		if  r.rawfile and File.exist?(r.rawfile)
 			File.mtime(r.rawfile)
 		else 
-			Time.random(1)
+			Time.random(2)
 		end
 	}
 

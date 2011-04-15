@@ -34,7 +34,6 @@ describe 'parses metrics and databases them' do
 	end
 
 end
-#=end
 describe 'generates a lot of metrics' do 
 	before do 
 		@files = Dir.entries(TESTFILE + '/metrics/')
